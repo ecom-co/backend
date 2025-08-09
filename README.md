@@ -1,98 +1,144 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## E-commerce Backend (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend cho hệ thống thương mại điện tử, xây dựng bằng NestJS (TypeScript). Dự án được cấu trúc module, cấu hình tập trung, tài liệu hóa bằng Swagger, có xác thực request toàn cục và chuẩn hóa lỗi.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Tính năng chính
 
-## Description
+- **Cấu hình tập trung**: `ConfigModule` toàn cục với validate bằng `Joi` (file `modules/config`).
+- **Swagger**: tự động tạo tài liệu tại `/docs`, hỗ trợ Bearer Auth và Cookie Auth (`refresh_token`).
+- **Prefix toàn cục**: mọi API đi qua prefix `api` (ví dụ: `/api/example`).
+- **Validation & Transform**: `ValidationPipe` (transform, whitelist, forbidNonWhitelisted, implicit conversion).
+- **Serializer & Filter**: `ClassSerializerInterceptor` và `HttpExceptionFilter` chuẩn hóa lỗi, gắn `x-correlation-id`.
+- **CORS**: bật sẵn, chấp nhận credentials.
+- **Giới hạn payload**: body JSON/URL-encoded tối đa 50MB.
+- **Ví dụ module**: `example` và `example-2` minh họa controller/service, DTO, swagger decorator tùy chỉnh.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Yêu cầu hệ thống
 
-## Project setup
+- Node.js >= 18
+- pnpm >= 8
+
+## Cài đặt
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Compile and run the project
+## Biến môi trường (.env)
+
+Tối thiểu cần các biến sau. Những biến có default đã được nêu rõ.
+
+```env
+# App
+NODE_ENV=development
+PORT=3000
+
+# Database (yêu cầu)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=ecom
+# DATABASE_URL=postgres://user:pass@host:port/dbname (tùy chọn)
+
+# Swagger (có default)
+SWAGGER_TITLE=ecom-backend API
+SWAGGER_DESCRIPTION=API Documentation
+SWAGGER_VERSION=1.0
+
+# Redis (có default)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+REDIS_KEY_PREFIX=
+
+# RabbitMQ (bắt buộc, URI hợp lệ)
+RABBITMQ_URL=amqp://guest:guest@localhost:5672
+```
+
+Lưu ý: Schema validate được định nghĩa ở `modules/config/config.validation.ts`. Nếu thiếu/bất hợp lệ, ứng dụng sẽ dừng với thông báo lỗi cấu hình.
+
+## Chạy dự án
 
 ```bash
 # development
-$ pnpm run start
+pnpm run start
 
 # watch mode
-$ pnpm run start:dev
+pnpm run start:dev
 
-# production mode
-$ pnpm run start:prod
+# production (đã build)
+pnpm run start:prod
 ```
 
-## Run tests
+- Sau khi chạy, server lắng nghe tại `http://localhost:PORT` (theo biến `PORT`).
+- Swagger UI: `http://localhost:PORT/docs` (được in ra console khi `NODE_ENV=development`).
+- Mọi endpoint đi qua prefix `api` (ví dụ: `GET /api/example`).
 
-```bash
-# unit tests
-$ pnpm run test
+## Scripts hữu ích
 
-# e2e tests
-$ pnpm run test:e2e
+- **build**: `nest build`
+- **check-types**: kiểm tra kiểu TypeScript không phát sinh file
+- **lint / lint:fix**: ESLint kiểm tra/sửa lỗi style
+- **format**: Prettier
+- **test / test:watch / test:cov / test:e2e**: Jest unit/e2e/coverage
+- **prepare**: bật Husky nếu không set `SKIP_HUSKY`
 
-# test coverage
-$ pnpm run test:cov
+Xem đầy đủ trong `package.json` phần `scripts`.
+
+## Cấu trúc chính
+
+```
+src/
+  core/
+    configs/            # Swagger, export configs
+    constants/          # Hằng số AUTH_TYPE, toán tử, ...
+    decorators/         # Decorators (ví dụ: ApiEndpoint, ClampNumber)
+    dto/                # DTO chung: error, api response, pagination
+    filters/            # HttpExceptionFilter chuẩn hóa lỗi
+  modules/
+    config/             # ConfigModule (global), validation (Joi), service
+    example/            # Ví dụ module 1
+    example-2/          # Ví dụ module 2
+  app.module.ts         # Root module
+  main.ts               # Bootstrap app, global pipes/filters/interceptors
 ```
 
-## Deployment
+## Chuẩn lỗi (HttpExceptionFilter)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- Tự sinh/gắn `x-correlation-id` cho mỗi response lỗi.
+- Trả về JSON theo `ErrorResponseDto`, ví dụ:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+```json
+{
+    "statusCode": 400,
+    "error": "Bad Request",
+    "message": ["field is required"],
+    "path": "/api/example",
+    "timestamp": "2025-01-01T00:00:00.000Z",
+    "requestId": "d3f7..."
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Pagination chuẩn
 
-## Resources
+`PaginationDto` hỗ trợ các query:
 
-Check out a few resources that may come in handy when working with NestJS:
+- **page**: mặc định 1, số nguyên ≥ 1
+- **limit**: mặc định 10, clamp [1, 100]
+- **q**: chuỗi tìm kiếm tùy chọn
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Module ví dụ
 
-## Support
+- `GET /api/example`: ví dụ có tích hợp decorator `ApiEndpoint` (swagger) và `PAGINATION_TYPE`.
+- `GET /api/example-2`: ví dụ controller/service cơ bản.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Đóng góp & Quy ước
 
-## Stay in touch
+- Lint/format trước khi commit: đã cấu hình ESLint + Prettier + (tùy chọn) Husky/lint-staged.
+- Conventional commits: hỗ trợ `commitlint` (nếu bật hook).
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Giấy phép
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED (private).

@@ -1,6 +1,5 @@
 import { Type } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-
 import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()

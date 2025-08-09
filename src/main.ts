@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestApplication, NestFactory, Reflector } from '@nestjs/core';
-
 import * as bodyParser from 'body-parser';
 
-import { AppModule } from '@/app.module';
 import { setUpSwagger } from '@/core/configs';
 import { HttpExceptionFilter } from '@/core/filters';
 import { ConfigServiceApp } from '@/modules/config/config.service';
+
+import { AppModule } from '@/app.module';
 
 /**
  * Bootstrap the NestJS application

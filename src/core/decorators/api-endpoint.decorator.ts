@@ -8,7 +8,6 @@ import {
     ApiResponse,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-
 import { map, size, get } from 'lodash';
 
 import { AuthType, AUTH_TYPE } from '../constants/auth.constants';
