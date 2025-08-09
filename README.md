@@ -1,65 +1,79 @@
 ## E-commerce Backend (NestJS)
 
-Backend cho hệ thống thương mại điện tử, xây dựng bằng NestJS (TypeScript). Dự án được cấu trúc module, cấu hình tập trung, tài liệu hóa bằng Swagger, có xác thực request toàn cục và chuẩn hóa lỗi.
+Backend for an e-commerce system built with NestJS (TypeScript). The project is modular, centrally configured, fully documented with Swagger, and ships with global request validation and standardized error responses.
 
-### Tính năng chính
+### Key Features
 
-- **Cấu hình tập trung**: `ConfigModule` toàn cục với validate bằng `Joi` (file `modules/config`).
-- **Swagger**: tự động tạo tài liệu tại `/docs`, hỗ trợ Bearer Auth và Cookie Auth (`refresh_token`).
-- **Prefix toàn cục**: mọi API đi qua prefix `api` (ví dụ: `/api/example`).
-- **Validation & Transform**: `ValidationPipe` (transform, whitelist, forbidNonWhitelisted, implicit conversion).
-- **Serializer & Filter**: `ClassSerializerInterceptor` và `HttpExceptionFilter` chuẩn hóa lỗi, gắn `x-correlation-id`.
-- **CORS**: bật sẵn, chấp nhận credentials.
-- **Giới hạn payload**: body JSON/URL-encoded tối đa 50MB.
-- **Ví dụ module**: `example` và `example-2` minh họa controller/service, DTO, swagger decorator tùy chỉnh.
+- **Centralized configuration**: Global `ConfigModule` with `Joi` validation (`modules/config`).
+- **Swagger**: auto-generated docs at `/docs`, supports Bearer Auth and Cookie Auth (`refresh_token`).
+- **Global prefix**: all routes are served under `api` (e.g., `/api/example`).
+- **Validation & transform**: `ValidationPipe` with transform, whitelist, forbidNonWhitelisted, and implicit conversion.
+- **Serializer & filter**: `ClassSerializerInterceptor` and `HttpExceptionFilter` for consistent error shape and `x-correlation-id`.
+- **CORS**: enabled, credentials allowed.
+- **Payload limits**: JSON and URL-encoded up to 50MB.
+- **Example modules**: `example` and `example-2` showcasing controllers/services, DTOs, and a custom Swagger decorator.
 
-## Yêu cầu hệ thống
+## System Requirements
 
 - Node.js >= 18
-- pnpm >= 8
+- Package manager: pnpm >= 8 (or npm >= 9)
 
-## Cài đặt
+## Installation
 
 ```bash
+# with pnpm
 pnpm install
+
+# or with npm
+npm install
 ```
 
-## Biến môi trường (.env)
+## Environment Variables (.env)
 
-Tối thiểu cần các biến sau. Những biến có default đã được nêu rõ.
+Minimum variables to run. Some have sensible defaults. Full schema is enforced in `modules/config/config.validation.ts`.
 
 ```env
 # App
 NODE_ENV=development
 PORT=3000
 
-# Database (yêu cầu)
+# Database (recommended to use a single URL)
+# Example: postgresql://USER:PASS@HOST:PORT/DBNAME
+DATABASE_URL=postgresql://postgres:postgres@localhost:5442/nvn_backend
+
+# Optional discrete DB params (used when DATABASE_URL is absent)
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5442
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
-DB_NAME=ecom
-# DATABASE_URL=postgres://user:pass@host:port/dbname (tùy chọn)
+DB_NAME=nvn_backend
 
-# Swagger (có default)
+# Swagger (defaults provided)
 SWAGGER_TITLE=ecom-backend API
 SWAGGER_DESCRIPTION=API Documentation
 SWAGGER_VERSION=1.0
 
-# Redis (có default)
+# Redis (defaults provided)
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0
 REDIS_KEY_PREFIX=
 
-# RabbitMQ (bắt buộc, URI hợp lệ)
+# RabbitMQ (required, valid URI)
 RABBITMQ_URL=amqp://guest:guest@localhost:5672
 ```
 
-Lưu ý: Schema validate được định nghĩa ở `modules/config/config.validation.ts`. Nếu thiếu/bất hợp lệ, ứng dụng sẽ dừng với thông báo lỗi cấu hình.
+Note: If configuration is missing/invalid, the app will exit with a clear error message.
 
-## Chạy dự án
+## Database
+
+- TypeORM with PostgreSQL is configured in `app.module.ts` using `TypeOrmModule.forRootAsync`.
+- Uses `DATABASE_URL` when provided; falls back to discrete DB variables.
+- In development, `synchronize` and SQL `logging` are enabled.
+- `autoLoadEntities` is enabled, so entities are picked up automatically.
+
+## Run
 
 ```bash
 # development
@@ -68,47 +82,47 @@ pnpm run start
 # watch mode
 pnpm run start:dev
 
-# production (đã build)
+# production (after build)
 pnpm run start:prod
 ```
 
-- Sau khi chạy, server lắng nghe tại `http://localhost:PORT` (theo biến `PORT`).
-- Swagger UI: `http://localhost:PORT/docs` (được in ra console khi `NODE_ENV=development`).
-- Mọi endpoint đi qua prefix `api` (ví dụ: `GET /api/example`).
+- Server: `http://localhost:PORT`
+- Swagger UI: `http://localhost:PORT/docs` (printed to console in development)
+- Global prefix: all endpoints under `/api` (e.g., `GET /api/example`)
 
-## Scripts hữu ích
+## Useful Scripts
 
 - **build**: `nest build`
-- **check-types**: kiểm tra kiểu TypeScript không phát sinh file
-- **lint / lint:fix**: ESLint kiểm tra/sửa lỗi style
-- **format**: Prettier
+- **check-types**: type-check without emitting files
+- **lint / lint:fix**: ESLint check/fix
+- **format**: Prettier format
 - **test / test:watch / test:cov / test:e2e**: Jest unit/e2e/coverage
-- **prepare**: bật Husky nếu không set `SKIP_HUSKY`
+- **prepare**: enable Husky if `SKIP_HUSKY` is not set
 
-Xem đầy đủ trong `package.json` phần `scripts`.
+See more in `package.json` under `scripts`.
 
-## Cấu trúc chính
+## Project Structure
 
 ```
 src/
   core/
-    configs/            # Swagger, export configs
-    constants/          # Hằng số AUTH_TYPE, toán tử, ...
-    decorators/         # Decorators (ví dụ: ApiEndpoint, ClampNumber)
-    dto/                # DTO chung: error, api response, pagination
-    filters/            # HttpExceptionFilter chuẩn hóa lỗi
+    configs/            # Swagger config exports
+    constants/          # Constants (AUTH_TYPE, operators, ...)
+    decorators/         # Decorators (e.g., ApiEndpoint, ClampNumber)
+    dto/                # Shared DTOs: error, api response, pagination
+    filters/            # Standard HttpExceptionFilter
   modules/
-    config/             # ConfigModule (global), validation (Joi), service
-    example/            # Ví dụ module 1
-    example-2/          # Ví dụ module 2
+    config/             # Global ConfigModule, Joi validation, service
+    example/            # Example module 1
+    example-2/          # Example module 2
   app.module.ts         # Root module
-  main.ts               # Bootstrap app, global pipes/filters/interceptors
+  main.ts               # Bootstrap: global pipes/filters/interceptors
 ```
 
-## Chuẩn lỗi (HttpExceptionFilter)
+## Error Shape (HttpExceptionFilter)
 
-- Tự sinh/gắn `x-correlation-id` cho mỗi response lỗi.
-- Trả về JSON theo `ErrorResponseDto`, ví dụ:
+- Each error response includes an `x-correlation-id`.
+- Error body follows `ErrorResponseDto`, for example:
 
 ```json
 {
@@ -121,24 +135,24 @@ src/
 }
 ```
 
-## Pagination chuẩn
+## Pagination
 
-`PaginationDto` hỗ trợ các query:
+`PaginationDto` supports:
 
-- **page**: mặc định 1, số nguyên ≥ 1
-- **limit**: mặc định 10, clamp [1, 100]
-- **q**: chuỗi tìm kiếm tùy chọn
+- **page**: default 1, integer ≥ 1
+- **limit**: default 10, clamped to [1, 100]
+- **q**: optional search string
 
-## Module ví dụ
+## Demo Modules
 
-- `GET /api/example`: ví dụ có tích hợp decorator `ApiEndpoint` (swagger) và `PAGINATION_TYPE`.
-- `GET /api/example-2`: ví dụ controller/service cơ bản.
+- `GET /api/example`: demonstrates `ApiEndpoint` decorator (Swagger) and `PAGINATION_TYPE`.
+- `GET /api/example-2`: basic controller/service example.
 
-## Đóng góp & Quy ước
+## Contributing & Conventions
 
-- Lint/format trước khi commit: đã cấu hình ESLint + Prettier + (tùy chọn) Husky/lint-staged.
-- Conventional commits: hỗ trợ `commitlint` (nếu bật hook).
+- Run lint/format before committing (ESLint + Prettier + optional Husky/lint-staged).
+- Conventional commits are supported via `commitlint` (if hooks are enabled).
 
-## Giấy phép
+## License
 
 UNLICENSED (private).
