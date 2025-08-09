@@ -23,28 +23,6 @@ export class ConfigServiceApp {
     get isProduction(): boolean {
         return this.nodeEnv === 'production';
     }
-
-    // Database Configuration
-    get dbHost(): string {
-        return this.configService.get('DB_HOST');
-    }
-
-    get dbPort(): number {
-        return this.configService.get('DB_PORT');
-    }
-
-    get dbUsername(): string {
-        return this.configService.get('DB_USERNAME');
-    }
-
-    get dbPassword(): string {
-        return this.configService.get('DB_PASSWORD');
-    }
-
-    get dbName(): string {
-        return this.configService.get('DB_NAME');
-    }
-
     get databaseUrl(): string | undefined {
         return this.configService.get('DATABASE_URL');
     }

@@ -6,11 +6,6 @@ export interface EnvironmentVariables {
     PORT: number;
 
     // Database Configuration
-    DB_HOST: string;
-    DB_PORT: number;
-    DB_USERNAME: string;
-    DB_PASSWORD: string;
-    DB_NAME: string;
     DATABASE_URL?: string;
 
     // Swagger Configuration
@@ -48,12 +43,7 @@ export const validationSchema = Joi.object({
     PORT: Joi.number().port().default(3000),
 
     // Database Configuration
-    DB_HOST: Joi.string().required(),
-    DB_PORT: Joi.number().port().default(5432),
-    DB_USERNAME: Joi.string().required(),
-    DB_PASSWORD: Joi.string().required(),
-    DB_NAME: Joi.string().required(),
-    DATABASE_URL: Joi.string().optional(),
+    DATABASE_URL: Joi.string().uri().required().description('Database URL for the PostgreSQL server'),
 
     // Swagger Configuration
     SWAGGER_TITLE: Joi.string().default('API Documentation'),

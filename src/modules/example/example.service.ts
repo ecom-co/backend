@@ -1,3 +1,4 @@
+import { InjectRepository, Like, Repository, User } from '@ecom-co/orm';
 import { Injectable } from '@nestjs/common';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
@@ -7,21 +8,29 @@ import { UpdateExampleDto } from './dto/update-example.dto';
 
 @Injectable()
 export class ExampleService {
-    constructor(private readonly example2Service: Example2Service) {}
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+        private readonly example2Service: Example2Service,
+    ) {}
 
-    create(createExampleDto: CreateExampleDto) {
+    create(_createExampleDto: CreateExampleDto) {
         return 'This action adds a new example';
     }
 
-    findAll() {
-        return 'This action returns all example';
+    async findAll() {
+        return await this.userRepository.find({
+            where: {
+                name: Like('John'),
+            },
+        });
     }
 
     findOne(id: number) {
         return `This action returns a #${id} example`;
     }
 
-    update(id: number, updateExampleDto: UpdateExampleDto) {
+    update(id: number, _updateExampleDto: UpdateExampleDto) {
         return `This action updates a #${id} example`;
     }
 
