@@ -1,4 +1,4 @@
-import { InjectRepository, Like, Repository, User } from '@ecom-co/orm';
+import { In, InjectRepository, Like, Repository, User } from '@ecom-co/orm';
 import { Injectable } from '@nestjs/common';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
@@ -21,7 +21,11 @@ export class ExampleService {
     async findAll() {
         return await this.userRepository.find({
             where: {
-                name: Like('John'),
+                name: In([Like('John'), Like('Jane')]),
+            },
+            select: {
+                name: true,
+                isActive: true,
             },
         });
     }
