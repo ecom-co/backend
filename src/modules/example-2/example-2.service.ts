@@ -1,0 +1,27 @@
+import { Injectable } from '@nestjs/common';
+
+import { CreateExample2Dto } from './dto/create-example-2.dto';
+import { UpdateExample2Dto } from './dto/update-example-2.dto';
+
+@Injectable()
+export class Example2Service {
+    create(createExample2Dto: CreateExample2Dto) {
+        return 'This action adds a new example2';
+    }
+
+    findAll() {
+        return 'This action returns all example2';
+    }
+
+    findOne(id: number) {
+        return `This action returns a #${id} example2`;
+    }
+
+    update(id: number, updateExample2Dto: UpdateExample2Dto) {
+        return `This action updates a #${id} example2`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} example2`;
+    }
+}
