@@ -2,6 +2,14 @@
 
 What does this PR do and why?
 
+## Related issues
+
+Use GitHub linking keywords so issues auto-close when merged.
+
+- Closes #123
+- Fixes #456
+- Resolves #789
+
 ## Type of change
 
 - [ ] feat (new feature)
