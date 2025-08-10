@@ -1,5 +1,5 @@
 import { getRepositoryToken, User } from '@ecom-co/orm';
-import { getRedisClientToken } from '@ecom-co/redis';
+import { getRedisFacadeToken } from '@ecom-co/redis';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
@@ -42,7 +42,7 @@ describe('ExampleService', () => {
                     useValue: mockUserRepository,
                 },
                 {
-                    provide: getRedisClientToken(),
+                    provide: getRedisFacadeToken(),
                     useValue: mockRedisClient,
                 },
             ],
