@@ -1,4 +1,5 @@
 import { getRepositoryToken, User } from '@ecom-co/orm';
+import { getRedisClientToken } from '@ecom-co/redis';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
@@ -36,6 +37,10 @@ describe('ExampleController', () => {
                 {
                     provide: getRepositoryToken(User),
                     useValue: mockUserRepository,
+                },
+                {
+                    provide: getRedisClientToken(),
+                    useValue: { get: jest.fn(), set: jest.fn() },
                 },
             ],
         }).compile();

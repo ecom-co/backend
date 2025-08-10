@@ -1,7 +1,6 @@
-import { In, InjectRepository, Like, Repository, User } from '@ecom-co/orm';
+import { InjectRepository, Repository, User } from '@ecom-co/orm';
+import { InjectRedis, RedisClient } from '@ecom-co/redis';
 import { Injectable } from '@nestjs/common';
-
-import { Example2Service } from '@/modules/example-2/example-2.service';
 
 import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
@@ -11,7 +10,8 @@ export class ExampleService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-        private readonly example2Service: Example2Service,
+        @InjectRedis()
+        private readonly redisCli: RedisClient,
     ) {}
 
     create(_createExampleDto: CreateExampleDto) {
@@ -19,19 +19,22 @@ export class ExampleService {
     }
 
     async findAll() {
-        return await this.userRepository.find({
-            where: {
-                name: In([Like('John'), Like('Jane')]),
-            },
+        const usersRedis = await this.redisCli.get('users');
+        if (usersRedis) {
+            return JSON.parse(usersRedis) as User[];
+        }
+        const users = await this.userRepository.find({
             select: {
                 name: true,
                 isActive: true,
             },
         });
+        await this.redisCli.set('users', JSON.stringify(users), 'EX', 60);
+        return users;
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} example`;
+    async findOne(_id: number) {
+        await this.findAll();
     }
 
     update(id: number, _updateExampleDto: UpdateExampleDto) {
