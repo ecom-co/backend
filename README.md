@@ -68,10 +68,31 @@ Note: If configuration is missing/invalid, the app will exit with a clear error 
 
 ## Database
 
-- TypeORM with PostgreSQL is configured in `app.module.ts` using `TypeOrmModule.forRootAsync`.
+- TypeORM with PostgreSQL is configured in `app.module.ts` using `OrmModule.forRootAsync`.
 - Uses `DATABASE_URL` when provided; falls back to discrete DB variables.
 - In development, `synchronize` and SQL `logging` are enabled.
 - `autoLoadEntities` is enabled, so entities are picked up automatically.
+- Health check helper available via `ORM_HEALTH_CHECK` token or `checkTypeOrmHealthy(DataSource)`.
+
+Example (`app.module.ts`):
+
+```ts
+import { CORE_ENTITIES, OrmModule } from '@ecom-co/orm';
+
+OrmModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigServiceApp],
+    useFactory: (config: ConfigServiceApp) => ({
+        type: 'postgres',
+        url: config.databaseUrl,
+        synchronize: config.isDevelopment,
+        logging: config.isDevelopment,
+        entities: [...CORE_ENTITIES],
+        autoLoadEntities: true,
+        health: true,
+    }),
+});
+```
 
 ## Run
 
@@ -84,6 +105,58 @@ pnpm run start:dev
 
 # production (after build)
 pnpm run start:prod
+```
+
+## Redis (via `@ecom-co/redis`)
+
+Install in this app:
+
+```bash
+npm i @ecom-co/redis ioredis
+```
+
+Register module (prefer REDIS_URL; fallback to fields):
+
+```ts
+import { RedisModule } from '@ecom-co/redis';
+
+RedisModule.forRootAsync({
+    inject: [ConfigServiceApp],
+    useFactory: (config: ConfigServiceApp) => ({
+        clients: [
+            config.redisUrl
+                ? { type: 'single', name: 'default', connectionString: config.redisUrl }
+                : {
+                      type: 'single',
+                      name: 'default',
+                      host: config.redisHost,
+                      port: config.redisPort,
+                      password: config.redisPassword,
+                      db: config.redisDb,
+                  },
+        ],
+    }),
+});
+```
+
+Use in services:
+
+```ts
+import { InjectRedis, RedisClient } from '@ecom-co/redis';
+
+constructor(@InjectRedis() private readonly redis: RedisClient) {}
+
+await this.redis.set('key', 'value', 'EX', 60);
+```
+
+Connection string examples:
+
+```env
+# Single
+REDIS_URL=redis://:password@localhost:6379/0
+
+# Cluster (set via module options.nodes)
+# redis://:password@node-1:6379/0
 ```
 
 - Server: `http://localhost:PORT`

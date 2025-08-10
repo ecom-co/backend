@@ -1,4 +1,5 @@
 import { getRepositoryToken, User } from '@ecom-co/orm';
+import { getRedisClientToken } from '@ecom-co/redis';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
@@ -23,6 +24,11 @@ describe('ExampleService', () => {
         create: jest.fn(),
     };
 
+    const mockRedisClient = {
+        get: jest.fn(),
+        set: jest.fn(),
+    };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -34,6 +40,10 @@ describe('ExampleService', () => {
                 {
                     provide: getRepositoryToken(User),
                     useValue: mockUserRepository,
+                },
+                {
+                    provide: getRedisClientToken(),
+                    useValue: mockRedisClient,
                 },
             ],
         }).compile();

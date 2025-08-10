@@ -19,6 +19,7 @@ export interface EnvironmentVariables {
     REDIS_PASSWORD: string;
     REDIS_DB: number;
     REDIS_KEY_PREFIX: string;
+    REDIS_URL: string;
 
     // RabbitMQ Configuration
     RABBITMQ_URL: string;
@@ -56,7 +57,7 @@ export const validationSchema = Joi.object({
     REDIS_PASSWORD: Joi.string().allow(''),
     REDIS_DB: Joi.number().default(0),
     REDIS_KEY_PREFIX: Joi.string().default(''),
-
+    REDIS_URL: Joi.string().uri().required().description('Redis URL for the Redis server'),
     // RabbitMQ Configuration
     RABBITMQ_URL: Joi.string().uri().required().description('AMQP URL for the RabbitMQ server'),
 });

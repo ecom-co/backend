@@ -48,6 +48,10 @@ export class ConfigServiceApp {
         return this.configService.get('REDIS_KEY_PREFIX', '');
     }
 
+    get redisUrl(): string {
+        return this.configService.get('REDIS_URL');
+    }
+
     // Swagger Configuration
     get swaggerTitle(): string {
         return this.configService.get('SWAGGER_TITLE');

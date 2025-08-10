@@ -1,4 +1,5 @@
-import { CORE_ENTITIES, TypeOrmModule } from '@ecom-co/orm';
+import { CORE_ENTITIES, OrmModule } from '@ecom-co/orm';
+import { RedisModule } from '@ecom-co/redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 
@@ -14,7 +15,7 @@ import { Example2Module } from './modules/example-2/example-2.module';
 @Module({
     imports: [
         NestConfigModule.forRoot(),
-        TypeOrmModule.forRootAsync({
+        OrmModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigServiceApp],
             useFactory: (configService: ConfigServiceApp) => ({
@@ -24,7 +25,21 @@ import { Example2Module } from './modules/example-2/example-2.module';
                 logging: configService.isDevelopment,
                 entities: [...CORE_ENTITIES],
                 autoLoadEntities: true,
+                health: true,
             }),
+        }),
+        RedisModule.forRootAsync({
+            inject: [ConfigServiceApp],
+            useFactory: (config: ConfigServiceApp) => ({
+                clients: [
+                    {
+                        type: 'single',
+                        name: 'default',
+                        connectionString: config.redisUrl,
+                    },
+                ],
+            }),
+            // predeclare: ['forward'],
         }),
         ConfigModule,
         ExampleModule,

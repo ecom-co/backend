@@ -24,7 +24,8 @@
     "editor.quickSuggestions": {
         "comments": true
     },
-    "cSpell.words": [
-        "opensearch"
-    ]
+    "cSpell.words": ["opensearch"],
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }
