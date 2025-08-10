@@ -34,6 +34,6 @@
             "@filters/*": ["src/common/filters/*"]
         }
     },
-    "include": ["src/**/*.ts", "test/**/*.ts", ".commitlintrc.js"],
+    "include": ["src/**/*.ts", "test/**/*.ts", ".commitlintrc.js", ".commitlintrc.ts"],
     "exclude": ["node_modules", "dist"]
 }
