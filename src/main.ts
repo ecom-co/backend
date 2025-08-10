@@ -48,9 +48,9 @@ const bootstrap = async (): Promise<void> => {
     // Add HttpExceptionFilter to handle exceptions globally
     app.useGlobalFilters(new HttpExceptionFilter(app.get(Reflector)));
 
-    setUpSwagger(app, configService);
     // Global prefix - Set BEFORE Swagger
     app.setGlobalPrefix('api');
+    setUpSwagger(app, configService);
 
     await app.listen(configService.port);
     console.log(`Server is running on port ${configService.port}`);
