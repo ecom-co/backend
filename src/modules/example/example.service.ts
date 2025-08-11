@@ -1,10 +1,13 @@
+import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
 import { InjectRepository, Repository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
+import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
+import { ProductSearchDoc } from './product-search.doc';
 
 @Injectable()
 export class ExampleService {
@@ -12,6 +15,7 @@ export class ExampleService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         @InjectRedisFacade() private readonly cache: RedisFacade,
+        @InjectEsRepository(ProductSearchDoc) private readonly productRepo: EsRepository<ProductSearchDoc>,
     ) {}
 
     create(_createExampleDto: CreateExampleDto) {
@@ -75,5 +79,80 @@ export class ExampleService {
 
     remove(id: number) {
         return `This action removes a #${id} example`;
+    }
+
+    // --- Elasticsearch demo methods ---
+    async esInsertOne(doc: { id: string; name: string; price: number }): Promise<{ ok: true }> {
+        await this.productRepo.indexOne(doc, doc.id);
+        await this.productRepo.refresh();
+        return { ok: true };
+    }
+
+    async esBulkInsert(docs: Array<{ id: string; name: string; price: number }>): Promise<{ ok: true }> {
+        if (docs.length === 0) return { ok: true };
+        await this.productRepo.bulkIndex(docs);
+        await this.productRepo.refresh();
+        return { ok: true };
+    }
+
+    async esInsertWithTags(doc: {
+        id: string;
+        name: string;
+        price: number;
+        tags: Array<{ id: string; name: string }>;
+    }): Promise<{ ok: true }> {
+        return this.esInsertOne(doc);
+    }
+
+    async esUpsert(doc: { id: string; name?: string; price?: number }): Promise<{ ok: true }> {
+        await this.productRepo.upsertById(doc.id, { name: doc.name, price: doc.price });
+        await this.productRepo.refresh();
+        return { ok: true };
+    }
+
+    async esSearch(q: string): Promise<SearchResponse<ProductSearchDoc>> {
+        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q });
+        return res;
+    }
+
+    async esDeleteById(id: string): Promise<{ ok: true }> {
+        await this.productRepo.deleteById(id);
+        await this.productRepo.refresh();
+        return { ok: true };
+    }
+
+    async esGetAll(): Promise<SearchResponse<ProductSearchDoc>> {
+        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q: '*' });
+        return res;
+    }
+
+    async esGetAllSources(): Promise<ProductSearchDoc[]> {
+        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ q: '*' });
+        return items;
+    }
+
+    async esSearchAdvanced(filters: {
+        name?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        tagId?: string;
+    }): Promise<ProductSearchDoc[]> {
+        const must: QueryDslQueryContainer[] = [];
+        const filter: QueryDslQueryContainer[] = [];
+
+        if (filters.name) must.push({ match: { name: filters.name } });
+        if (filters.minPrice != null || filters.maxPrice != null) {
+            const range: Record<string, number> = {};
+            if (filters.minPrice != null) range.gte = filters.minPrice;
+            if (filters.maxPrice != null) range.lte = filters.maxPrice;
+            filter.push({ range: { price: range } });
+        }
+        if (filters.tagId) must.push({ nested: { path: 'tags', query: { term: { 'tags.id': filters.tagId } } } });
+
+        const query: QueryDslQueryContainer =
+            must.length || filter.length ? { bool: { must, filter } } : { match_all: {} };
+
+        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ query } as unknown);
+        return items;
     }
 }

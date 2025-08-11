@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 
 import { AUTH_TYPE } from '@/core/constants';
 import { PAGINATION_TYPE } from '@/core/constants/pagination.constants';
@@ -53,5 +53,69 @@ export class ExampleController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.exampleService.remove(+id);
+    }
+
+    // --- Elasticsearch demo endpoints ---
+    @Post('es/products')
+    esCreateOne(@Body() body: { id: string; name: string; price: number }) {
+        return this.exampleService.esInsertOne(body);
+    }
+
+    @Post('es/products/bulk')
+    esBulk(@Body() body: Array<{ id: string; name: string; price: number }>) {
+        return this.exampleService.esBulkInsert(body);
+    }
+
+    @Post('es/products/tags')
+    esCreateWithTags(
+        @Body()
+        body: {
+            id: string;
+            name: string;
+            price: number;
+            tags: Array<{ id: string; name: string }>;
+        },
+    ) {
+        return this.exampleService.esInsertWithTags(body);
+    }
+
+    @Post('es/products/upsert')
+    esUpsert(@Body() body: { id: string; name?: string; price?: number }) {
+        return this.exampleService.esUpsert(body);
+    }
+
+    @Get('es/products/search')
+    esSearch(@Query('q') q: string) {
+        return this.exampleService.esSearch(q ?? '');
+    }
+
+    @Delete('es/products/:id')
+    esDelete(@Param('id') id: string) {
+        return this.exampleService.esDeleteById(id);
+    }
+
+    @Get('es/products')
+    esGetAll() {
+        return this.exampleService.esGetAll();
+    }
+
+    @Get('es/products/sources')
+    esGetAllSources() {
+        return this.exampleService.esGetAllSources();
+    }
+
+    @Get('es/products/search/advanced')
+    esSearchAdvanced(
+        @Query('name') name?: string,
+        @Query('minPrice') minPrice?: string,
+        @Query('maxPrice') maxPrice?: string,
+        @Query('tagId') tagId?: string,
+    ) {
+        return this.exampleService.esSearchAdvanced({
+            name,
+            minPrice: minPrice ? Number(minPrice) : undefined,
+            maxPrice: maxPrice ? Number(maxPrice) : undefined,
+            tagId,
+        });
     }
 }
