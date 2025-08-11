@@ -36,6 +36,7 @@ describe('ExampleController', () => {
         search: jest.fn(),
         searchSources: jest.fn(),
     };
+    const mockEsRepoAnalytics = { ...mockEsRepo };
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -57,6 +58,10 @@ describe('ExampleController', () => {
                 {
                     provide: getEsRepositoryToken(ProductSearchDoc),
                     useValue: mockEsRepo,
+                },
+                {
+                    provide: getEsRepositoryToken(ProductSearchDoc, 'analytics'),
+                    useValue: mockEsRepoAnalytics,
                 },
             ],
         }).compile();

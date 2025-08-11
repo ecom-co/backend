@@ -16,6 +16,8 @@ export class ExampleService {
         private readonly userRepository: Repository<User>,
         @InjectRedisFacade() private readonly cache: RedisFacade,
         @InjectEsRepository(ProductSearchDoc) private readonly productRepo: EsRepository<ProductSearchDoc>,
+        @InjectEsRepository(ProductSearchDoc, 'analytics')
+        private readonly analyticsRepo: EsRepository<ProductSearchDoc>,
     ) {}
 
     create(_createExampleDto: CreateExampleDto) {
@@ -110,9 +112,15 @@ export class ExampleService {
         return { ok: true };
     }
 
-    async esSearch(q: string): Promise<SearchResponse<ProductSearchDoc>> {
-        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q });
-        return res;
+    async esSearch(
+        q: string,
+    ): Promise<{ primary: SearchResponse<ProductSearchDoc>; secondary: SearchResponse<ProductSearchDoc> }> {
+        const primary: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q });
+        const secondary: SearchResponse<ProductSearchDoc> = await this.analyticsRepo.search({ q });
+        return {
+            primary,
+            secondary,
+        };
     }
 
     async esDeleteById(id: string): Promise<{ ok: true }> {

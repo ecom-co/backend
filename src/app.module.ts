@@ -48,14 +48,13 @@ import { Example2Module } from './modules/example-2/example-2.module';
             inject: [ConfigServiceApp],
             useFactory: () => ({
                 clients: [
-                    {
-                        name: 'default',
-                        node: 'http://localhost:9201',
-                    },
+                    { name: 'default', node: 'http://localhost:9201' },
+                    { name: 'analytics', node: 'http://localhost:9201' },
                 ],
                 autoCreateIndices: true,
                 documents: [ProductSearchDoc],
             }),
+            predeclare: ['analytics'],
         }),
         ConfigModule,
         ExampleModule,

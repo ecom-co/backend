@@ -15,6 +15,7 @@ import { ProductSearchDoc } from './product-search.doc';
         TypeOrmModule.forFeature([User]),
         RedisModule,
         ElasticsearchModule.forFeature([ProductSearchDoc]),
+        ElasticsearchModule.forFeature([ProductSearchDoc], 'analytics'),
     ],
     controllers: [ExampleController],
     providers: [ExampleService],
