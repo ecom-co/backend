@@ -1,5 +1,5 @@
 import { ElasticsearchModule } from '@ecom-co/elasticsearch';
-import { TypeOrmModule, User } from '@ecom-co/orm';
+import { OrmModule, User } from '@ecom-co/orm';
 import { RedisModule } from '@ecom-co/redis';
 import { Module } from '@nestjs/common';
 
@@ -12,7 +12,7 @@ import { ProductSearchDoc } from './product-search.doc';
 @Module({
     imports: [
         Example2Module,
-        TypeOrmModule.forFeature([User]),
+        OrmModule.forFeatureExtended([User]),
         RedisModule,
         ElasticsearchModule.forFeature([ProductSearchDoc]),
         ElasticsearchModule.forFeature([ProductSearchDoc], 'analytics'),

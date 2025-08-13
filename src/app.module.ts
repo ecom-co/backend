@@ -28,6 +28,14 @@ import { Example2Module } from './modules/example-2/example-2.module';
                 entities: [...CORE_ENTITIES],
                 autoLoadEntities: true,
                 health: true,
+                keepConnectionAlive: true,
+                retryAttempts: 10,
+                retryDelay: 3000,
+                extra: {
+                    max: 10,
+                    connectionTimeoutMillis: 5000,
+                    idleTimeoutMillis: 30000,
+                },
             }),
         }),
         RedisModule.forRootAsync({

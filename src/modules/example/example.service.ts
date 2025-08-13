@@ -1,5 +1,5 @@
 import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
-import { InjectRepository, Repository, User } from '@ecom-co/orm';
+import { BaseRepository, InjectRepository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
 import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -13,15 +13,22 @@ import { ProductSearchDoc } from './product-search.doc';
 export class ExampleService {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        private readonly userRepository: BaseRepository<User>,
         @InjectRedisFacade() private readonly cache: RedisFacade,
         @InjectEsRepository(ProductSearchDoc) private readonly productRepo: EsRepository<ProductSearchDoc>,
         @InjectEsRepository(ProductSearchDoc, 'analytics')
         private readonly analyticsRepo: EsRepository<ProductSearchDoc>,
     ) {}
 
-    create(_createExampleDto: CreateExampleDto) {
-        return 'This action adds a new example';
+    async create(dto: CreateExampleDto) {
+        return await this.userRepository.findOneOrCreate(
+            {
+                name: dto.name ?? 'Anonymous',
+            },
+            {
+                isActive: 1 as unknown as boolean,
+            },
+        );
     }
 
     async findAll() {
@@ -36,6 +43,7 @@ export class ExampleService {
                 id: true,
             },
         });
+
         await this.cache.setJson('users', users, {
             ttlSeconds: 60,
         });

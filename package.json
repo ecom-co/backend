@@ -57,9 +57,9 @@
         }
     },
     "dependencies": {
-        "@ecom-co/elasticsearch": "^0.1.12",
-        "@ecom-co/orm": "^0.1.17",
-        "@ecom-co/redis": "^0.1.5",
+        "@ecom-co/elasticsearch": "^0.1.15",
+        "@ecom-co/orm": "^0.1.18",
+        "@ecom-co/redis": "^0.1.8",
         "@elastic/elasticsearch": "^8.19.0",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.2",
