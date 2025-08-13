@@ -57,9 +57,9 @@
         }
     },
     "dependencies": {
-        "@ecom-co/elasticsearch": "^0.1.15",
-        "@ecom-co/orm": "^0.1.18",
-        "@ecom-co/redis": "^0.1.8",
+        "@ecom-co/elasticsearch": "^0.1.16",
+        "@ecom-co/orm": "^0.1.20",
+        "@ecom-co/redis": "^0.1.9",
         "@elastic/elasticsearch": "^8.19.0",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.2",
@@ -80,7 +80,7 @@
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",
         "@commitlint/config-conventional": "^19.8.1",
-        "@ecom-co/eslint": "^2.0.2",
+        "@ecom-co/eslint": "^2.0.1",
         "@nestjs/cli": "^11.0.0",
         "@nestjs/schematics": "^11.0.0",
         "@nestjs/testing": "^11.0.1",
