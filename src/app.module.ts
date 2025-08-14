@@ -8,11 +8,10 @@ import { ConfigModule } from '@/modules/config/config.module';
 import { ConfigServiceApp } from '@/modules/config/config.service';
 import { ExampleModule } from '@/modules/example/example.module';
 import { ProductSearchDoc } from '@/modules/example/product-search.doc';
+import { RabbitmqModule } from '@/modules/rabbitmq/rabbitmq.module';
 
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
-
-import { Example2Module } from './modules/example-2/example-2.module';
 
 @Module({
     imports: [
@@ -64,9 +63,10 @@ import { Example2Module } from './modules/example-2/example-2.module';
             }),
             predeclare: ['analytics'],
         }),
+        RabbitmqModule,
+
         ConfigModule,
         ExampleModule,
-        Example2Module,
     ],
     controllers: [AppController],
     providers: [AppService],
