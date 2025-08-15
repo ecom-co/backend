@@ -1,14 +1,15 @@
-import { ApiProperty, IsOptional, IsNotEmpty } from '@ecom-co/utils';
+import { IsString, StringField } from '@ecom-co/utils';
 
 export class CreateExampleDto {
-    @ApiProperty({
+    @StringField({
         name: 'name',
-        description: 'The name of the example',
-        type: String,
+        required: true,
+        description: 'Product name',
+        example: 'Product name',
+        messages: {
+            required: 'Name is required',
+        },
     })
-    @IsOptional()
-    @IsNotEmpty({
-        message: 'Name is required',
-    })
-    name: string;
+    @IsString()
+    name!: string;
 }

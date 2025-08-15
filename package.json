@@ -61,7 +61,7 @@
         "@ecom-co/orm": "^0.1.20",
         "@ecom-co/rabbitmq": "^2.0.10",
         "@ecom-co/redis": "^0.1.9",
-        "@ecom-co/utils": "^1.0.2",
+        "@ecom-co/utils": "^1.0.9",
         "@elastic/elasticsearch": "^8.19.0",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.2",

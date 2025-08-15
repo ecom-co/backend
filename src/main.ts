@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
+import { getValidationPipeConfig, HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestApplication, NestFactory, Reflector } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
@@ -30,17 +30,8 @@ const bootstrap = async (): Promise<void> => {
         credentials: true,
     });
 
-    // Global validation pipe
-    app.useGlobalPipes(
-        new ValidationPipe({
-            transform: true,
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transformOptions: {
-                enableImplicitConversion: true,
-            },
-        }),
-    );
+    const validationPipe: ValidationPipe = getValidationPipeConfig();
+    app.useGlobalPipes(validationPipe);
 
     // Global class serializer interceptor
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
