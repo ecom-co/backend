@@ -1,4 +1,4 @@
-import { ApiEndpoint, AUTH_TYPE } from '@ecom-co/utils';
+import { ApiEndpoint, ApiValidationEndpoint, AUTH_TYPE, PAGINATION_TYPE } from '@ecom-co/utils';
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
@@ -12,17 +12,24 @@ export class ExampleController {
     constructor(private readonly exampleService: ExampleService) {}
 
     @Post()
-    @ApiEndpoint({
+    @ApiValidationEndpoint({
         summary: 'Create a new example',
         description: 'Creates a new example record.',
         responses: {
-            [HttpStatus.OK]: {
+            [HttpStatus.CREATED]: {
                 type: ExampleResponseDto,
                 description: 'Example created',
             },
         },
         auth: { type: AUTH_TYPE.JWT, required: true },
-        errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
+        errors: [HttpStatus.CONFLICT],
+        body: { type: CreateExampleDto },
+        validation: {
+            errorExamples: [
+                { field: 'name', constraint: 'isNotEmpty', message: 'Namne should not be empty' },
+                { field: 'email', constraint: 'isEmail', message: 'email must be an email' },
+            ],
+        },
     })
     create(@Body() createExampleDto: CreateExampleDto) {
         return this.exampleService.create(createExampleDto);
@@ -38,6 +45,7 @@ export class ExampleController {
                 description: 'Example created',
             },
         },
+        paginationType: PAGINATION_TYPE.OFFSET,
         auth: { type: AUTH_TYPE.JWT, required: true },
         errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
     })

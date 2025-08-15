@@ -1,3 +1,4 @@
+import { User } from '@ecom-co/orm';
 import { Exclude, Expose, ApiProperty, plainToInstance } from '@ecom-co/utils';
 import { assign } from 'lodash';
 
@@ -11,7 +12,11 @@ export class ExampleResponseDto {
     @ApiProperty({ description: 'Example Name', example: 'Demo name' })
     name: string;
 
-    constructor(partial: Partial<ExampleResponseDto>) {
+    @Expose()
+    @ApiProperty({ description: 'Example is active', example: true })
+    isActive: boolean;
+
+    constructor(partial: Partial<User>) {
         assign(this, plainToInstance(ExampleResponseDto, partial, { excludeExtraneousValues: true }));
     }
 }

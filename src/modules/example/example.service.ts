@@ -1,9 +1,12 @@
 import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
 import { BaseRepository, InjectRepository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
+import { ApiResponseData } from '@ecom-co/utils';
 import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+
+import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
 
 import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
@@ -21,7 +24,7 @@ export class ExampleService {
     ) {}
 
     async create(dto: CreateExampleDto) {
-        return await this.userRepository.findOneOrCreate(
+        const result = await this.userRepository.findOneOrCreate(
             {
                 name: dto.name ?? 'Anonymous',
             },
@@ -29,6 +32,7 @@ export class ExampleService {
                 isActive: 1 as unknown as boolean,
             },
         );
+        return new ApiResponseData(new ExampleResponseDto(result), 'Example created successfully');
     }
 
     async findAll() {
