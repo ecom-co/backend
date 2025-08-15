@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
+import { PartialType } from '@ecom-co/utils';
 
 import { CreateExample2Dto } from './create-example-2.dto';
 

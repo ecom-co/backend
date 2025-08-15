@@ -1,5 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { ApiProperty, IsOptional, IsNotEmpty } from '@ecom-co/utils';
 
 export class CreateExampleDto {
     @ApiProperty({
@@ -9,7 +8,7 @@ export class CreateExampleDto {
     })
     @IsOptional()
     @IsNotEmpty({
-        message: 'Thằng này dell empty',
+        message: 'Name is required',
     })
     name: string;
 }

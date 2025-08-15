@@ -24,7 +24,7 @@
     "editor.quickSuggestions": {
         "comments": true
     },
-    "cSpell.words": ["opensearch"],
+    "cSpell.words": ["ecom", "lintstagedrc", "opensearch", "rabbitmq"],
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     }

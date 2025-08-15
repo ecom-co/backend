@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
+import { HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestApplication, NestFactory, Reflector } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
 
-import { setUpSwagger } from '@/core/configs';
-import { HttpExceptionFilter } from '@/core/filters';
 import { ConfigServiceApp } from '@/modules/config/config.service';
 
 import { AppModule } from '@/app.module';
@@ -46,11 +45,22 @@ const bootstrap = async (): Promise<void> => {
     // Global class serializer interceptor
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     // Add HttpExceptionFilter to handle exceptions globally
-    app.useGlobalFilters(new HttpExceptionFilter(app.get(Reflector)));
+    app.useGlobalFilters(
+        new HttpExceptionFilter(app.get(Reflector), {
+            isDevelopment: configService.isDevelopment,
+            enableRateLimitTracking: true,
+        }),
+    );
 
     // Global prefix - Set BEFORE Swagger
     app.setGlobalPrefix('api');
-    setUpSwagger(app, configService);
+    setUpSwagger(app, {
+        title: configService.swaggerTitle,
+        nodeEnv: configService.nodeEnv,
+        port: configService.port,
+        description: configService.swaggerDescription,
+        version: configService.swaggerVersion,
+    });
 
     await app.listen(configService.port);
     console.log(`Server is running on port ${configService.port}`);

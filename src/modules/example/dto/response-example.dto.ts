@@ -1,5 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, plainToInstance } from 'class-transformer';
+import { Exclude, Expose, ApiProperty, plainToInstance } from '@ecom-co/utils';
 import { assign } from 'lodash';
 
 @Exclude()

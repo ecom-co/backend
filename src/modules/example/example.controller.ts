@@ -1,12 +1,10 @@
+import { ApiEndpoint, AUTH_TYPE } from '@ecom-co/utils';
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 
-import { AUTH_TYPE } from '@/core/constants';
-import { PAGINATION_TYPE } from '@/core/constants/pagination.constants';
-import { ApiEndpoint } from '@/core/decorators/api-endpoint.decorator';
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
+import { UpdateExampleDto } from '@/modules/example/dto/update-example.dto';
 
 import { CreateExampleDto } from './dto/create-example.dto';
-import { UpdateExampleDto } from './dto/update-example.dto';
 import { ExampleService } from './example.service';
 
 @Controller('example')
@@ -17,9 +15,13 @@ export class ExampleController {
     @ApiEndpoint({
         summary: 'Create a new example',
         description: 'Creates a new example record.',
-        response: ExampleResponseDto,
-        created: true,
-        auth: { type: [AUTH_TYPE.JWT] },
+        responses: {
+            [HttpStatus.OK]: {
+                type: ExampleResponseDto,
+                description: 'Example created',
+            },
+        },
+        auth: { type: AUTH_TYPE.JWT, required: true },
         errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
     })
     create(@Body() createExampleDto: CreateExampleDto) {
@@ -30,11 +32,14 @@ export class ExampleController {
     @ApiEndpoint({
         summary: 'Create a new example',
         description: 'Creates a new example record.',
-        response: ExampleResponseDto,
-        paginationType: PAGINATION_TYPE.OFFSET,
-        created: true,
-        auth: { type: [AUTH_TYPE.JWT] },
-        errors: [],
+        responses: {
+            [HttpStatus.OK]: {
+                type: ExampleResponseDto,
+                description: 'Example created',
+            },
+        },
+        auth: { type: AUTH_TYPE.JWT, required: true },
+        errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
     })
     findAll() {
         return this.exampleService.findAll();
