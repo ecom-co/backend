@@ -53,10 +53,10 @@ import { AppService } from '@/app.service';
         ElasticsearchModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigServiceApp],
-            useFactory: () => ({
+            useFactory: (config: ConfigServiceApp) => ({
                 clients: [
-                    { name: 'default', node: 'http://localhost:9201' },
-                    { name: 'analytics', node: 'http://localhost:9201' },
+                    { name: 'default', node: config.elasticsearchUrl },
+                    { name: 'analytics', node: config.elasticsearchUrl },
                 ],
                 autoCreateIndices: true,
                 documents: [ProductSearchDoc],

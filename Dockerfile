@@ -7,6 +7,9 @@ FROM base AS dev
 ENV NODE_ENV=development \
     SKIP_HUSKY=1
 COPY package.json package-lock.json* ./
+# Setup GitHub authentication for npm
+ARG GITHUB_TOKEN
+RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
 RUN npm ci --omit=optional
 COPY . .
 # Default dev/debug ports (actual port comes from env)
@@ -17,6 +20,9 @@ CMD ["npm", "run", "start:dev"]
 FROM base AS builder
 ENV NODE_ENV=development
 COPY package.json package-lock.json* ./
+# Setup GitHub authentication for npm
+ARG GITHUB_TOKEN
+RUN echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
 RUN npm ci --omit=optional
 COPY . .
 RUN npm run build
