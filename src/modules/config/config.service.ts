@@ -69,4 +69,17 @@ export class ConfigServiceApp {
     get rabbitmqUrl(): string {
         return this.configService.get('RABBITMQ_URL');
     }
+
+    // gRPC Configuration
+    get grpcPort(): number {
+        return this.configService.get('GRPC_PORT', 50051);
+    }
+
+    get grpcPackage(): string {
+        return this.configService.get('GRPC_PACKAGE', 'example');
+    }
+
+    get grpcProtoPath(): string {
+        return this.configService.get('GRPC_PROTO_PATH', 'src/proto/example.proto');
+    }
 }

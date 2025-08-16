@@ -1,9 +1,10 @@
 import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
 import { BaseRepository, InjectRepository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
-import { ApiResponseData } from '@ecom-co/utils';
+import { ApiResponseData, ApiPaginatedResponseData, Paging } from '@ecom-co/utils';
 import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { map } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
@@ -32,15 +33,15 @@ export class ExampleService {
                 isActive: 1 as unknown as boolean,
             },
         );
-        return new ApiResponseData(new ExampleResponseDto(result), 'Example created successfully');
+        return new ApiResponseData({
+            data: new ExampleResponseDto(result),
+            message: 'Example created successfully',
+            statusCode: HttpStatus.CREATED,
+        });
     }
 
-    async findAll() {
-        const usersRedis: User[] | null = await this.cache.getJson<User[]>('users');
-        if (usersRedis) {
-            return usersRedis;
-        }
-        const users = await this.userRepository.find({
+    async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
+        const [users, total] = await this.userRepository.findAndCount({
             select: {
                 name: true,
                 isActive: true,
@@ -48,10 +49,18 @@ export class ExampleService {
             },
         });
 
-        await this.cache.setJson('users', users, {
-            ttlSeconds: 60,
+        const paging = new Paging({
+            page: 1,
+            limit,
+            total,
+            currentPageSize: users.length,
         });
-        return users;
+
+        return new ApiPaginatedResponseData<ExampleResponseDto>({
+            data: map(users, (user) => new ExampleResponseDto(user)),
+            paging,
+            message: 'Users retrieved successfully',
+        });
     }
 
     async findOne(id: string) {

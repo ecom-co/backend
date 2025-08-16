@@ -21,7 +21,7 @@ export class ExampleController {
                 description: 'Example created',
             },
         },
-        auth: { type: AUTH_TYPE.JWT, required: true },
+        auth: [{ type: AUTH_TYPE.JWT, provider: 'access-token', required: false }],
         errors: [HttpStatus.CONFLICT],
         body: { type: CreateExampleDto },
         validation: {
@@ -30,6 +30,7 @@ export class ExampleController {
                 { field: 'email', constraint: 'isEmail', message: 'email must be an email' },
             ],
         },
+        tags: ['User'],
     })
     create(@Body() createExampleDto: CreateExampleDto) {
         return this.exampleService.create(createExampleDto);
@@ -45,12 +46,13 @@ export class ExampleController {
                 description: 'Example created',
             },
         },
+        queries: [{ name: 'limit', type: 'number', description: 'Limit' }],
         paginationType: PAGINATION_TYPE.OFFSET,
         auth: { type: AUTH_TYPE.JWT, required: true },
         errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
     })
-    findAll() {
-        return this.exampleService.findAll();
+    findAll(@Query('limit') limit: number) {
+        return this.exampleService.findAll({ limit: limit ?? 10 });
     }
 
     @Get(':id')

@@ -23,6 +23,10 @@ export interface EnvironmentVariables {
 
     // RabbitMQ Configuration
     RABBITMQ_URL: string;
+    // gRPC Configuration
+    GRPC_PORT?: number;
+    GRPC_PACKAGE?: string;
+    GRPC_PROTO_PATH?: string;
 }
 
 export const validate = (config: Record<string, unknown>): EnvironmentVariables => {
@@ -60,4 +64,8 @@ export const validationSchema = Joi.object({
     REDIS_URL: Joi.string().uri().required().description('Redis URL for the Redis server'),
     // RabbitMQ Configuration
     RABBITMQ_URL: Joi.string().uri().required().description('AMQP URL for the RabbitMQ server'),
+    // gRPC Configuration
+    GRPC_PORT: Joi.number().default(50051),
+    GRPC_PACKAGE: Joi.string().default('example'),
+    GRPC_PROTO_PATH: Joi.string().default('src/proto/example.proto'),
 });
