@@ -1,3 +1,5 @@
+name: ecom
+
 services:
     # API Server - Development Mode
     api:
