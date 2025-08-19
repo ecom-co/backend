@@ -1,8 +1,10 @@
+import { Module } from '@nestjs/common';
+
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+
 import { ElasticsearchModule } from '@ecom-co/elasticsearch';
 import { CORE_ENTITIES, OrmModule } from '@ecom-co/orm';
 import { RedisModule } from '@ecom-co/redis';
-import { Module } from '@nestjs/common';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
 
 import { ConfigModule } from '@/modules/config/config.module';
 import { ConfigServiceApp } from '@/modules/config/config.service';
@@ -20,31 +22,32 @@ import { AppService } from '@/app.service';
             imports: [ConfigModule],
             inject: [ConfigServiceApp],
             useFactory: (configService: ConfigServiceApp) => ({
-                type: 'postgres',
-                url: configService.databaseUrl,
-                synchronize: configService.isDevelopment,
-                logging: configService.isDevelopment,
-                entities: [...CORE_ENTITIES],
                 autoLoadEntities: true,
-                health: true,
-                keepConnectionAlive: true,
-                retryAttempts: 10,
-                retryDelay: 3000,
+                entities: [...CORE_ENTITIES],
                 extra: {
-                    max: 10,
                     connectionTimeoutMillis: 5000,
                     idleTimeoutMillis: 30000,
+                    max: 10,
                 },
+                health: true,
+                keepConnectionAlive: true,
+                logging: configService.isDevelopment,
+                retryAttempts: 10,
+                retryDelay: 3000,
+                synchronize: configService.isDevelopment,
+                type: 'postgres',
+                url: configService.databaseUrl,
             }),
         }),
         RedisModule.forRootAsync({
             inject: [ConfigServiceApp],
-            useFactory: (config: ConfigServiceApp) => ({
+            useFactory: (_config: ConfigServiceApp) => ({
                 clients: [
                     {
-                        type: 'single',
+                        connectionString:
+                            'redis://default:ktbdyR27K6ESECTRs3GSHRaK2oQcvKES@redis-15417.c15.us-east-1-4.ec2.redns.redis-cloud.com:15417',
                         name: 'default',
-                        connectionString: config.redisUrl,
+                        type: 'single',
                     },
                 ],
             }),
@@ -53,15 +56,15 @@ import { AppService } from '@/app.service';
         ElasticsearchModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigServiceApp],
+            predeclare: ['analytics'],
             useFactory: (config: ConfigServiceApp) => ({
+                autoCreateIndices: true,
                 clients: [
                     { name: 'default', node: config.elasticsearchUrl },
                     { name: 'analytics', node: config.elasticsearchUrl },
                 ],
-                autoCreateIndices: true,
                 documents: [ProductSearchDoc],
             }),
-            predeclare: ['analytics'],
         }),
         RabbitmqModule,
 

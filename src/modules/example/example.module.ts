@@ -1,7 +1,8 @@
+import { Module } from '@nestjs/common';
+
 import { ElasticsearchModule } from '@ecom-co/elasticsearch';
 import { OrmModule, User } from '@ecom-co/orm';
 import { RedisModule } from '@ecom-co/redis';
-import { Module } from '@nestjs/common';
 
 import { Example2Module } from '@/modules/example-2/example-2.module';
 
@@ -19,5 +20,6 @@ import { ProductSearchDoc } from './product-search.doc';
     ],
     controllers: [ExampleController],
     providers: [ExampleService],
+    exports: [],
 })
 export class ExampleModule {}

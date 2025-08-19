@@ -1,17 +1,21 @@
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+
+import { map } from 'lodash';
+
 import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
 import { BaseRepository, InjectRepository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
-import { ApiResponseData, ApiPaginatedResponseData, Paging } from '@ecom-co/utils';
-import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { map } from 'lodash';
+import { ApiPaginatedResponseData, ApiResponseData, Paging } from '@ecom-co/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
 
 import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
+
 import { ProductSearchDoc } from './product-search.doc';
+
+import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 
 @Injectable()
 export class ExampleService {
@@ -33,6 +37,7 @@ export class ExampleService {
                 isActive: 1 as unknown as boolean,
             },
         );
+
         return new ApiResponseData({
             data: new ExampleResponseDto(result),
             message: 'Example created successfully',
@@ -40,26 +45,121 @@ export class ExampleService {
         });
     }
 
+    async esBulkInsert(docs: Array<{ id: string; name: string; price: number }>): Promise<{ ok: true }> {
+        if (docs.length === 0) return { ok: true };
+
+        await this.productRepo.bulkIndex(docs);
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
+    async esDeleteById(id: string): Promise<{ ok: true }> {
+        await this.productRepo.deleteById(id);
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
+    async esGetAll(): Promise<SearchResponse<ProductSearchDoc>> {
+        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q: '*' });
+
+        return res;
+    }
+
+    async esGetAllSources(): Promise<ProductSearchDoc[]> {
+        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ q: '*' });
+
+        return items;
+    }
+
+    // --- Elasticsearch demo methods ---
+    async esInsertOne(doc: { id: string; name: string; price: number }): Promise<{ ok: true }> {
+        await this.productRepo.indexOne(doc, doc.id);
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
+    async esInsertWithTags(doc: {
+        id: string;
+        name: string;
+        price: number;
+        tags: Array<{ id: string; name: string }>;
+    }): Promise<{ ok: true }> {
+        return this.esInsertOne(doc);
+    }
+
+    async esSearch(
+        q: string,
+    ): Promise<{ primary: SearchResponse<ProductSearchDoc>; secondary: SearchResponse<ProductSearchDoc> }> {
+        const primary: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q });
+        const secondary: SearchResponse<ProductSearchDoc> = await this.analyticsRepo.search({ q });
+
+        return {
+            primary,
+            secondary,
+        };
+    }
+
+    async esSearchAdvanced(filters: {
+        maxPrice?: number;
+        minPrice?: number;
+        name?: string;
+        tagId?: string;
+    }): Promise<ProductSearchDoc[]> {
+        const must: QueryDslQueryContainer[] = [];
+        const filter: QueryDslQueryContainer[] = [];
+
+        if (filters.name) must.push({ match: { name: filters.name } });
+
+        if (filters.minPrice != null || filters.maxPrice != null) {
+            const range: Record<string, number> = {};
+
+            if (filters.minPrice != null) range.gte = filters.minPrice;
+
+            if (filters.maxPrice != null) range.lte = filters.maxPrice;
+
+            filter.push({ range: { price: range } });
+        }
+
+        if (filters.tagId) must.push({ nested: { path: 'tags', query: { term: { 'tags.id': filters.tagId } } } });
+
+        const query: QueryDslQueryContainer =
+            must.length || filter.length ? { bool: { filter, must } } : { match_all: {} };
+
+        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ query } as unknown);
+
+        return items;
+    }
+
+    async esUpsert(doc: { id: string; name?: string; price?: number }): Promise<{ ok: true }> {
+        await this.productRepo.upsertById(doc.id, { name: doc.name, price: doc.price });
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
     async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
         const [users, total] = await this.userRepository.findAndCount({
             select: {
-                name: true,
-                isActive: true,
                 id: true,
+                isActive: true,
+                name: true,
             },
         });
 
         const paging = new Paging({
-            page: 1,
-            limit,
-            total,
             currentPageSize: users.length,
+            limit,
+            page: 1,
+            total,
         });
 
         return new ApiPaginatedResponseData<ExampleResponseDto>({
             data: map(users, (user) => new ExampleResponseDto(user)),
-            paging,
             message: 'Users retrieved successfully',
+            paging,
         });
     }
 
@@ -77,13 +177,13 @@ export class ExampleService {
 
         for (const sid of uuids) {
             // 1️⃣ Lưu sessionId vào danh sách session của user (Sorted Set)
-            await this.cache.zaddObject(`user_auth:user:${id}`, [{ score: now, member: sid }]);
+            await this.cache.zaddObject(`user_auth:user:${id}`, [{ member: sid, score: now }]);
 
             // 2️⃣ Lưu chi tiết session (Hash)
             await this.cache.hmsetObject(`user_auth:session:${sid}`, {
                 ip: '127.0.0.1',
-                ua: 'NestJS-Demo',
                 loginAt: now,
+                ua: 'NestJS-Demo',
             });
 
             // 3️⃣ TTL 7 ngày cho session
@@ -96,92 +196,11 @@ export class ExampleService {
         };
     }
 
-    update(id: number, _updateExampleDto: UpdateExampleDto) {
-        return `This action updates a #${id} example`;
-    }
-
     remove(id: number) {
         return `This action removes a #${id} example`;
     }
 
-    // --- Elasticsearch demo methods ---
-    async esInsertOne(doc: { id: string; name: string; price: number }): Promise<{ ok: true }> {
-        await this.productRepo.indexOne(doc, doc.id);
-        await this.productRepo.refresh();
-        return { ok: true };
-    }
-
-    async esBulkInsert(docs: Array<{ id: string; name: string; price: number }>): Promise<{ ok: true }> {
-        if (docs.length === 0) return { ok: true };
-        await this.productRepo.bulkIndex(docs);
-        await this.productRepo.refresh();
-        return { ok: true };
-    }
-
-    async esInsertWithTags(doc: {
-        id: string;
-        name: string;
-        price: number;
-        tags: Array<{ id: string; name: string }>;
-    }): Promise<{ ok: true }> {
-        return this.esInsertOne(doc);
-    }
-
-    async esUpsert(doc: { id: string; name?: string; price?: number }): Promise<{ ok: true }> {
-        await this.productRepo.upsertById(doc.id, { name: doc.name, price: doc.price });
-        await this.productRepo.refresh();
-        return { ok: true };
-    }
-
-    async esSearch(
-        q: string,
-    ): Promise<{ primary: SearchResponse<ProductSearchDoc>; secondary: SearchResponse<ProductSearchDoc> }> {
-        const primary: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q });
-        const secondary: SearchResponse<ProductSearchDoc> = await this.analyticsRepo.search({ q });
-        return {
-            primary,
-            secondary,
-        };
-    }
-
-    async esDeleteById(id: string): Promise<{ ok: true }> {
-        await this.productRepo.deleteById(id);
-        await this.productRepo.refresh();
-        return { ok: true };
-    }
-
-    async esGetAll(): Promise<SearchResponse<ProductSearchDoc>> {
-        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q: '*' });
-        return res;
-    }
-
-    async esGetAllSources(): Promise<ProductSearchDoc[]> {
-        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ q: '*' });
-        return items;
-    }
-
-    async esSearchAdvanced(filters: {
-        name?: string;
-        minPrice?: number;
-        maxPrice?: number;
-        tagId?: string;
-    }): Promise<ProductSearchDoc[]> {
-        const must: QueryDslQueryContainer[] = [];
-        const filter: QueryDslQueryContainer[] = [];
-
-        if (filters.name) must.push({ match: { name: filters.name } });
-        if (filters.minPrice != null || filters.maxPrice != null) {
-            const range: Record<string, number> = {};
-            if (filters.minPrice != null) range.gte = filters.minPrice;
-            if (filters.maxPrice != null) range.lte = filters.maxPrice;
-            filter.push({ range: { price: range } });
-        }
-        if (filters.tagId) must.push({ nested: { path: 'tags', query: { term: { 'tags.id': filters.tagId } } } });
-
-        const query: QueryDslQueryContainer =
-            must.length || filter.length ? { bool: { must, filter } } : { match_all: {} };
-
-        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ query } as unknown);
-        return items;
+    update(id: number, _updateExampleDto: UpdateExampleDto) {
+        return `This action updates a #${id} example`;
     }
 }

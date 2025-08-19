@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 import { CreateExample2Dto } from './dto/create-example-2.dto';
 import { UpdateExample2Dto } from './dto/update-example-2.dto';
+
 import { Example2Service } from './example-2.service';
 
 @Controller('example-2')
@@ -23,13 +24,13 @@ export class Example2Controller {
         return this.example2Service.findOne(+id);
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateExample2Dto: UpdateExample2Dto) {
-        return this.example2Service.update(+id, updateExample2Dto);
-    }
-
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.example2Service.remove(+id);
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateExample2Dto: UpdateExample2Dto) {
+        return this.example2Service.update(+id, updateExample2Dto);
     }
 }

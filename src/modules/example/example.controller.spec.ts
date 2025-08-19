@@ -1,7 +1,9 @@
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+
 import { getRepositoryToken as getEsRepositoryToken } from '@ecom-co/elasticsearch';
 import { getRepositoryToken as getOrmRepositoryToken, User } from '@ecom-co/orm';
 import { getRedisFacadeToken } from '@ecom-co/redis';
-import { Test, TestingModule } from '@nestjs/testing';
 
 import { Example2Service } from '@/modules/example-2/example-2.service';
 
@@ -16,25 +18,25 @@ describe('ExampleController', () => {
         create: jest.fn(),
         findAll: jest.fn(),
         findOne: jest.fn(),
-        update: jest.fn(),
         remove: jest.fn(),
+        update: jest.fn(),
     };
 
     const mockUserRepository = {
+        create: jest.fn(),
         find: jest.fn(),
         findOne: jest.fn(),
         save: jest.fn(),
-        create: jest.fn(),
     };
 
     const mockEsRepo = {
-        indexOne: jest.fn(),
         bulkIndex: jest.fn(),
-        upsertById: jest.fn(),
         deleteById: jest.fn(),
+        indexOne: jest.fn(),
         refresh: jest.fn(),
         search: jest.fn(),
         searchSources: jest.fn(),
+        upsertById: jest.fn(),
     };
     const mockEsRepoAnalytics = { ...mockEsRepo };
 

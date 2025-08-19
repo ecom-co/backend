@@ -1,7 +1,8 @@
-import { AmqpConnection } from '@ecom-co/rabbitmq';
 import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 
-import { RabbitmqService } from './rabbitmq.service';
+import { AmqpConnection } from '@ecom-co/rabbitmq';
+
+import { RabbitmqService } from '@/modules/rabbitmq/rabbitmq.service';
 
 @Controller('rabbitmq')
 export class RabbitmqController {
@@ -12,26 +13,30 @@ export class RabbitmqController {
     ) {}
 
     @Post('publish')
-    async publish(@Body() body: any) {
+    async publish(@Body() body: { hello: string }) {
         await this.amqp.publish('demo.exchange2', 'subscribe.routing.key', {
+            payload: body ?? { hello: 'world' },
             source: 'http',
             type: 'publish-demo',
-            payload: body ?? { hello: 'world' },
         });
+
         return { ok: true };
     }
 
     @Get('rpc')
     async rpc() {
         this.logger.log('🚀 Sending RPC request to demo.exchange2 (after restart)...');
+
         try {
-            const result = await this.amqp.request<{ ok: boolean; echo: any; timestamp: string }>({
+            const result = await this.amqp.request<{ echo: unknown; ok: boolean; timestamp: string }>({
                 exchange: 'demo.exchange2',
-                routingKey: 'rpc.routing.key',
                 payload: { from: 'http', type: 'rpc-demo' },
+                routingKey: 'rpc.routing.key',
                 timeout: 5000,
             });
+
             this.logger.log(`✅ RPC response received: ${JSON.stringify(result)}`);
+
             return result;
         } catch (error) {
             this.logger.error(
@@ -44,14 +49,17 @@ export class RabbitmqController {
     @Get('rpc2')
     async rpc2() {
         this.logger.log('🚀 Sending RPC request to demo.exchange2...');
+
         try {
-            const result = await this.amqp.request<{ ok: boolean; echo: any; timestamp: string }>({
+            const result = await this.amqp.request<{ echo: unknown; ok: boolean; timestamp: string }>({
                 exchange: 'demo.exchange2',
-                routingKey: 'rpc.routing.key',
                 payload: { from: 'http', type: 'rpc-demo' },
+                routingKey: 'rpc.routing.key',
                 timeout: 3000,
             });
+
             this.logger.log(`✅ RPC response received: ${JSON.stringify(result)}`);
+
             return result;
         } catch (error) {
             this.logger.error(
@@ -61,20 +69,35 @@ export class RabbitmqController {
         }
     }
 
+    @Get('sum')
+    async sum(@Query('a') a: string, @Query('b') b: string) {
+        const aNum = Number(a);
+        const bNum = Number(b);
+
+        if (Number.isNaN(aNum) || Number.isNaN(bNum)) {
+            return { message: 'Query params a and b must be numbers', ok: false };
+        }
+
+        const res = await this.rabbitService.sum(aNum, bNum);
+
+        return { ok: true, ...res };
+    }
+
     @Get('test-simple')
     async testSimple() {
         this.logger.log('🧪 Testing simple publish (no RPC)...');
+
         try {
             // Test simple publish
             await this.amqp.publish('demo.exchange2', 'subscribe.routing.key', {
+                payload: { message: 'Hello from simple test!' },
                 source: 'test',
                 type: 'simple-test',
-                payload: { message: 'Hello from simple test!' },
             });
 
             return {
-                message: 'Message published successfully',
                 exchange: 'demo.exchange2',
+                message: 'Message published successfully',
                 routingKey: 'subscribe.routing.key',
                 timestamp: new Date().toISOString(),
             };
@@ -84,16 +107,5 @@ export class RabbitmqController {
             );
             throw error;
         }
-    }
-
-    @Get('sum')
-    async sum(@Query('a') a: string, @Query('b') b: string) {
-        const aNum = Number(a);
-        const bNum = Number(b);
-        if (Number.isNaN(aNum) || Number.isNaN(bNum)) {
-            return { ok: false, message: 'Query params a and b must be numbers' };
-        }
-        const res = await this.rabbitService.sum(aNum, bNum);
-        return { ok: true, ...res };
     }
 }

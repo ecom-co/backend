@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { CreateExample2Dto } from './dto/create-example-2.dto';
-import { UpdateExample2Dto } from './dto/update-example-2.dto';
+import { CreateExample2Dto } from '@/modules/example-2/dto/create-example-2.dto';
+import { UpdateExample2Dto } from '@/modules/example-2/dto/update-example-2.dto';
 
 @Injectable()
 export class Example2Service {
@@ -17,11 +17,11 @@ export class Example2Service {
         return `This action returns a #${id} example2`;
     }
 
-    update(id: number, _updateExample2Dto: UpdateExample2Dto) {
-        return `This action updates a #${id} example2`;
-    }
-
     remove(id: number) {
         return `This action removes a #${id} example2`;
+    }
+
+    update(id: number, _updateExample2Dto: UpdateExample2Dto) {
+        return `This action updates a #${id} example2`;
     }
 }
