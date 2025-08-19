@@ -58,7 +58,7 @@
     },
     "dependencies": {
         "@ecom-co/elasticsearch": "^0.1.16",
-        "@ecom-co/orm": "^0.1.21",
+        "@ecom-co/orm": "^0.1.22",
         "@ecom-co/rabbitmq": "^2.0.10",
         "@ecom-co/redis": "^0.1.11",
         "@ecom-co/utils": "^1.0.19",
