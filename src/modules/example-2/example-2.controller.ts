@@ -24,13 +24,13 @@ export class Example2Controller {
         return this.example2Service.findOne(+id);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.example2Service.remove(+id);
-    }
-
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateExample2Dto: UpdateExample2Dto) {
         return this.example2Service.update(+id, updateExample2Dto);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.example2Service.remove(+id);
     }
 }

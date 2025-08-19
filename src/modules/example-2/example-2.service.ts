@@ -17,11 +17,11 @@ export class Example2Service {
         return `This action returns a #${id} example2`;
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} example2`;
-    }
-
     update(id: number, _updateExample2Dto: UpdateExample2Dto) {
         return `This action updates a #${id} example2`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} example2`;
     }
 }

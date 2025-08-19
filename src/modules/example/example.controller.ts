@@ -42,6 +42,40 @@ export class ExampleController {
     }
 
     // --- Elasticsearch demo endpoints ---
+    @ApiEndpoint({
+        auth: { required: true, type: AUTH_TYPE.JWT },
+        description: 'Creates a new example record.',
+        errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
+        paginationType: PAGINATION_TYPE.OFFSET,
+        queries: [{ description: 'Limit', name: 'limit', type: 'number' }],
+        responses: {
+            [HttpStatus.OK]: {
+                description: 'Example created',
+                type: ExampleResponseDto,
+            },
+        },
+        summary: 'Create a new example',
+    })
+    @Get()
+    findAll(@Query('limit') limit: number) {
+        return this.exampleService.findAll({ limit: limit ?? 10 });
+    }
+
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.exampleService.findOne(id);
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateExampleDto: UpdateExampleDto) {
+        return this.exampleService.update(+id, updateExampleDto);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.exampleService.remove(+id);
+    }
+
     @Post('es/products')
     esCreateOne(@Body() body: { id: string; name: string; price: number }) {
         return this.exampleService.esInsertOne(body);
@@ -98,39 +132,5 @@ export class ExampleController {
     @Post('es/products/upsert')
     esUpsert(@Body() body: { id: string; name?: string; price?: number }) {
         return this.exampleService.esUpsert(body);
-    }
-
-    @ApiEndpoint({
-        auth: { required: true, type: AUTH_TYPE.JWT },
-        description: 'Creates a new example record.',
-        errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
-        paginationType: PAGINATION_TYPE.OFFSET,
-        queries: [{ description: 'Limit', name: 'limit', type: 'number' }],
-        responses: {
-            [HttpStatus.OK]: {
-                description: 'Example created',
-                type: ExampleResponseDto,
-            },
-        },
-        summary: 'Create a new example',
-    })
-    @Get()
-    findAll(@Query('limit') limit: number) {
-        return this.exampleService.findAll({ limit: limit ?? 10 });
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.exampleService.findOne(id);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.exampleService.remove(+id);
-    }
-
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateExampleDto: UpdateExampleDto) {
-        return this.exampleService.update(+id, updateExampleDto);
     }
 }

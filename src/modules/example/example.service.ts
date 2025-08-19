@@ -74,6 +74,70 @@ export class ExampleService {
     }
 
     // --- Elasticsearch demo methods ---
+    async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
+        const [users, total] = await this.userRepository.findAndCount({
+            select: {
+                id: true,
+                isActive: true,
+                name: true,
+            },
+        });
+
+        const paging = new Paging({
+            currentPageSize: users.length,
+            limit,
+            page: 1,
+            total,
+        });
+
+        return new ApiPaginatedResponseData<ExampleResponseDto>({
+            data: map(users, (user) => new ExampleResponseDto(user)),
+            message: 'Users retrieved successfully',
+            paging,
+        });
+    }
+
+    async findOne(id: string) {
+        const user = await this.userRepository.findOne({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const uuids = Array.from({ length: 4 }, () => uuidv4());
+        const now = Date.now();
+
+        for (const sid of uuids) {
+            // 1️⃣ Lưu sessionId vào danh sách session của user (Sorted Set)
+            await this.cache.zaddObject(`user_auth:user:${id}`, [{ member: sid, score: now }]);
+
+            // 2️⃣ Lưu chi tiết session (Hash)
+            await this.cache.hmsetObject(`user_auth:session:${sid}`, {
+                ip: '127.0.0.1',
+                loginAt: now,
+                ua: 'NestJS-Demo',
+            });
+
+            // 3️⃣ TTL 7 ngày cho session
+            await this.cache.expire(`user_auth:session:${sid}`, 60 * 60 * 24 * 7);
+        }
+
+        return {
+            ...user,
+            createdSessions: uuids,
+        };
+    }
+
+    update(id: number, _updateExampleDto: UpdateExampleDto) {
+        return `This action updates a #${id} example`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} example`;
+    }
+
     async esInsertOne(doc: { id: string; name: string; price: number }): Promise<{ ok: true }> {
         await this.productRepo.indexOne(doc, doc.id);
         await this.productRepo.refresh();
@@ -138,69 +202,5 @@ export class ExampleService {
         await this.productRepo.refresh();
 
         return { ok: true };
-    }
-
-    async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
-        const [users, total] = await this.userRepository.findAndCount({
-            select: {
-                id: true,
-                isActive: true,
-                name: true,
-            },
-        });
-
-        const paging = new Paging({
-            currentPageSize: users.length,
-            limit,
-            page: 1,
-            total,
-        });
-
-        return new ApiPaginatedResponseData<ExampleResponseDto>({
-            data: map(users, (user) => new ExampleResponseDto(user)),
-            message: 'Users retrieved successfully',
-            paging,
-        });
-    }
-
-    async findOne(id: string) {
-        const user = await this.userRepository.findOne({
-            where: { id },
-        });
-
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-
-        const uuids = Array.from({ length: 4 }, () => uuidv4());
-        const now = Date.now();
-
-        for (const sid of uuids) {
-            // 1️⃣ Lưu sessionId vào danh sách session của user (Sorted Set)
-            await this.cache.zaddObject(`user_auth:user:${id}`, [{ member: sid, score: now }]);
-
-            // 2️⃣ Lưu chi tiết session (Hash)
-            await this.cache.hmsetObject(`user_auth:session:${sid}`, {
-                ip: '127.0.0.1',
-                loginAt: now,
-                ua: 'NestJS-Demo',
-            });
-
-            // 3️⃣ TTL 7 ngày cho session
-            await this.cache.expire(`user_auth:session:${sid}`, 60 * 60 * 24 * 7);
-        }
-
-        return {
-            ...user,
-            createdSessions: uuids,
-        };
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} example`;
-    }
-
-    update(id: number, _updateExampleDto: UpdateExampleDto) {
-        return `This action updates a #${id} example`;
     }
 }
