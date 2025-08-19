@@ -41,13 +41,12 @@ import { AppService } from '@/app.service';
         }),
         RedisModule.forRootAsync({
             inject: [ConfigServiceApp],
-            useFactory: (_config: ConfigServiceApp) => ({
+            useFactory: (config: ConfigServiceApp) => ({
                 clients: [
                     {
                         name: 'default',
                         type: 'single',
-                        connectionString:
-                            'redis://default:ktbdyR27K6ESECTRs3GSHRaK2oQcvKES@redis-15417.c15.us-east-1-4.ec2.redns.redis-cloud.com:15417',
+                        connectionString: config.redisUrl,
                     },
                 ],
             }),
