@@ -19,6 +19,7 @@ import { AppService } from '@/app.service';
     imports: [
         NestConfigModule.forRoot(),
         OrmModule.forRootAsync({
+            imports: [ConfigModule],
             inject: [ConfigServiceApp],
             useFactory: (configService: ConfigServiceApp) => ({
                 type: 'postgres',
@@ -37,7 +38,6 @@ import { AppService } from '@/app.service';
                 synchronize: configService.isDevelopment,
                 url: configService.databaseUrl,
             }),
-            imports: [ConfigModule],
         }),
         RedisModule.forRootAsync({
             inject: [ConfigServiceApp],
@@ -54,6 +54,7 @@ import { AppService } from '@/app.service';
             // predeclare: ['forward'],
         }),
         ElasticsearchModule.forRootAsync({
+            imports: [ConfigModule],
             inject: [ConfigServiceApp],
             predeclare: ['analytics'],
             useFactory: (config: ConfigServiceApp) => ({
@@ -64,7 +65,6 @@ import { AppService } from '@/app.service';
                 ],
                 documents: [ProductSearchDoc],
             }),
-            imports: [ConfigModule],
         }),
         RabbitmqModule,
 

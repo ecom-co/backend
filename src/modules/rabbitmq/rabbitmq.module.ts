@@ -12,6 +12,7 @@ import { RabbitmqService } from './rabbitmq.service';
 @Module({
     imports: [
         RabbitMQModule.forRootAsync({
+            imports: [ConfigModule],
             inject: [ConfigServiceApp],
             useFactory: (configService: ConfigServiceApp) => ({
                 channels: [
@@ -50,7 +51,6 @@ import { RabbitmqService } from './rabbitmq.service';
                 strictConfig: true,
                 uri: configService.rabbitmqUrl,
             }),
-            imports: [ConfigModule],
         }),
     ],
     controllers: [RabbitmqController],
