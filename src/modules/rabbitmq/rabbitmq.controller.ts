@@ -15,9 +15,9 @@ export class RabbitmqController {
     @Post('publish')
     async publish(@Body() body: { hello: string }) {
         await this.amqp.publish('demo.exchange2', 'subscribe.routing.key', {
+            type: 'publish-demo',
             payload: body ?? { hello: 'world' },
             source: 'http',
-            type: 'publish-demo',
         });
 
         return { ok: true };
@@ -30,7 +30,7 @@ export class RabbitmqController {
         try {
             const result = await this.amqp.request<{ echo: unknown; ok: boolean; timestamp: string }>({
                 exchange: 'demo.exchange2',
-                payload: { from: 'http', type: 'rpc-demo' },
+                payload: { type: 'rpc-demo', from: 'http' },
                 routingKey: 'rpc.routing.key',
                 timeout: 5000,
             });
@@ -53,7 +53,7 @@ export class RabbitmqController {
         try {
             const result = await this.amqp.request<{ echo: unknown; ok: boolean; timestamp: string }>({
                 exchange: 'demo.exchange2',
-                payload: { from: 'http', type: 'rpc-demo' },
+                payload: { type: 'rpc-demo', from: 'http' },
                 routingKey: 'rpc.routing.key',
                 timeout: 3000,
             });
@@ -90,9 +90,9 @@ export class RabbitmqController {
         try {
             // Test simple publish
             await this.amqp.publish('demo.exchange2', 'subscribe.routing.key', {
+                type: 'simple-test',
                 payload: { message: 'Hello from simple test!' },
                 source: 'test',
-                type: 'simple-test',
             });
 
             return {

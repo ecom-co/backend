@@ -19,9 +19,9 @@ import { AppService } from '@/app.service';
     imports: [
         NestConfigModule.forRoot(),
         OrmModule.forRootAsync({
-            imports: [ConfigModule],
             inject: [ConfigServiceApp],
             useFactory: (configService: ConfigServiceApp) => ({
+                type: 'postgres',
                 autoLoadEntities: true,
                 entities: [...CORE_ENTITIES],
                 extra: {
@@ -35,26 +35,25 @@ import { AppService } from '@/app.service';
                 retryAttempts: 10,
                 retryDelay: 3000,
                 synchronize: configService.isDevelopment,
-                type: 'postgres',
                 url: configService.databaseUrl,
             }),
+            imports: [ConfigModule],
         }),
         RedisModule.forRootAsync({
             inject: [ConfigServiceApp],
             useFactory: (_config: ConfigServiceApp) => ({
                 clients: [
                     {
-                        connectionString:
-                            'redis://default:ktbdyR27K6ESECTRs3GSHRaK2oQcvKES@redis-15417.c15.us-east-1-4.ec2.redns.redis-cloud.com:15417',
                         name: 'default',
                         type: 'single',
+                        connectionString:
+                            'redis://default:ktbdyR27K6ESECTRs3GSHRaK2oQcvKES@redis-15417.c15.us-east-1-4.ec2.redns.redis-cloud.com:15417',
                     },
                 ],
             }),
             // predeclare: ['forward'],
         }),
         ElasticsearchModule.forRootAsync({
-            imports: [ConfigModule],
             inject: [ConfigServiceApp],
             predeclare: ['analytics'],
             useFactory: (config: ConfigServiceApp) => ({
@@ -65,6 +64,7 @@ import { AppService } from '@/app.service';
                 ],
                 documents: [ProductSearchDoc],
             }),
+            imports: [ConfigModule],
         }),
         RabbitmqModule,
 

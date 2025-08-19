@@ -78,8 +78,8 @@ export class ExampleService {
         const [users, total] = await this.userRepository.findAndCount({
             select: {
                 id: true,
-                isActive: true,
                 name: true,
+                isActive: true,
             },
         });
 

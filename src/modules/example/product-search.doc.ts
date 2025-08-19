@@ -5,18 +5,18 @@ export class ProductSearchDoc {
     @Field({ type: 'keyword' })
     id!: string;
 
-    @Field({ analyzer: 'standard', fields: { keyword: { type: 'keyword' } }, type: 'text' })
+    @Field({ type: 'text', analyzer: 'standard', fields: { keyword: { type: 'keyword' } } })
     name!: string;
 
     @Field({ type: 'double' })
     price!: number;
 
     @Field({
+        type: 'nested',
         properties: {
             id: { type: 'keyword' },
-            name: { fields: { keyword: { type: 'keyword' } }, type: 'text' },
+            name: { type: 'text', fields: { keyword: { type: 'keyword' } } },
         },
-        type: 'nested',
     })
     tags?: Array<{ id: string; name: string }>;
 }

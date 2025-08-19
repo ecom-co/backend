@@ -34,11 +34,11 @@ describe('ExampleService', () => {
 
     const mockEsRepo = {
         bulkIndex: jest.fn(),
-        deleteById: jest.fn(),
         indexOne: jest.fn(),
         refresh: jest.fn(),
         search: jest.fn(),
         searchSources: jest.fn(),
+        deleteById: jest.fn(),
         upsertById: jest.fn(),
     };
     const mockEsRepoAnalytics = { ...mockEsRepo };

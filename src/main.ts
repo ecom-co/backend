@@ -61,25 +61,26 @@ const bootstrap = async (): Promise<void> => {
     // Global prefix - Set BEFORE Swagger
     app.setGlobalPrefix('api');
     setUpSwagger(app, {
+        title: configService.swaggerTitle,
         apiKey: {
             providers: [
                 {
+                    name: 'api-key',
                     description: 'API Key',
                     in: 'header',
                     keyName: 'X-Api-Key',
-                    name: 'api-key',
                 },
                 {
+                    name: 'api-key-2',
                     description: 'API Key 2',
                     in: 'header',
                     keyName: 'X-Api-Key-2',
-                    name: 'api-key-2',
                 },
                 {
+                    name: 'api-key-3',
                     description: 'API Key 3',
                     in: 'header',
                     keyName: 'X-Api-Key-3',
-                    name: 'api-key-3',
                 },
             ],
         },
@@ -87,12 +88,12 @@ const bootstrap = async (): Promise<void> => {
         jwt: {
             providers: [
                 {
-                    description: 'JWT Access Token for regular users',
                     name: 'access-token',
+                    description: 'JWT Access Token for regular users',
                 },
                 {
-                    description: 'JWT Admin Token for administrative access',
                     name: 'admin-token',
+                    description: 'JWT Admin Token for administrative access',
                 },
             ],
         },
@@ -104,7 +105,6 @@ const bootstrap = async (): Promise<void> => {
                 url: `http://localhost:${configService.port}`,
             },
         ],
-        title: configService.swaggerTitle,
         version: configService.swaggerVersion,
     });
 

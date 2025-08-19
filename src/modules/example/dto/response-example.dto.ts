@@ -9,13 +9,13 @@ export class ExampleResponseDto {
     @Expose()
     id: string;
 
-    @ApiProperty({ description: 'Example is active', example: true })
-    @Expose()
-    isActive: boolean;
-
     @ApiProperty({ description: 'Example Name', example: 'Demo name' })
     @Expose()
     name: string;
+
+    @ApiProperty({ description: 'Example is active', example: true })
+    @Expose()
+    isActive: boolean;
 
     constructor(partial: Partial<User>) {
         assign(this, plainToInstance(ExampleResponseDto, partial, { excludeExtraneousValues: true }));

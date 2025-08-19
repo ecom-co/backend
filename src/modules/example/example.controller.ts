@@ -12,14 +12,14 @@ export class ExampleController {
     constructor(private readonly exampleService: ExampleService) {}
 
     @ApiValidationEndpoint({
-        auth: [{ provider: 'access-token', required: false, type: AUTH_TYPE.JWT }],
+        auth: [{ type: AUTH_TYPE.JWT, provider: 'access-token', required: false }],
         body: { type: CreateExampleDto },
         description: 'Creates a new example record.',
         errors: [HttpStatus.CONFLICT],
         responses: {
             [HttpStatus.CREATED]: {
-                description: 'Example created',
                 type: ExampleResponseDto,
+                description: 'Example created',
             },
         },
         summary: 'Create a new example',
@@ -43,15 +43,15 @@ export class ExampleController {
 
     // --- Elasticsearch demo endpoints ---
     @ApiEndpoint({
-        auth: { required: true, type: AUTH_TYPE.JWT },
+        auth: { type: AUTH_TYPE.JWT, required: true },
         description: 'Creates a new example record.',
         errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
         paginationType: PAGINATION_TYPE.OFFSET,
-        queries: [{ description: 'Limit', name: 'limit', type: 'number' }],
+        queries: [{ name: 'limit', type: 'number', description: 'Limit' }],
         responses: {
             [HttpStatus.OK]: {
-                description: 'Example created',
                 type: ExampleResponseDto,
+                description: 'Example created',
             },
         },
         summary: 'Create a new example',
@@ -122,9 +122,9 @@ export class ExampleController {
         @Query('tagId') tagId?: string,
     ) {
         return this.exampleService.esSearchAdvanced({
+            name,
             maxPrice: maxPrice ? Number(maxPrice) : undefined,
             minPrice: minPrice ? Number(minPrice) : undefined,
-            name,
             tagId,
         });
     }
