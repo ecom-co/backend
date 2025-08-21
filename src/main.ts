@@ -4,7 +4,6 @@ import { join } from 'path';
 import type { NestApplication } from '@nestjs/core';
 import { NestFactory, Reflector } from '@nestjs/core';
 
-import type { ValidationPipe } from '@nestjs/common';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 
 import { getValidationPipeConfig, HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
@@ -44,9 +43,7 @@ const bootstrap = async (): Promise<void> => {
     app.use(helmet());
     app.use(compression());
 
-    const validationPipe: ValidationPipe = getValidationPipeConfig();
-
-    app.useGlobalPipes(validationPipe);
+    app.useGlobalPipes(getValidationPipeConfig());
 
     // Global class serializer interceptor
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));

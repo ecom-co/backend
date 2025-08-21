@@ -10,6 +10,7 @@ import { ConfigModule } from '@/modules/config/config.module';
 import { ConfigServiceApp } from '@/modules/config/config.service';
 import { ExampleModule } from '@/modules/example/example.module';
 import { ProductSearchDoc } from '@/modules/example/product-search.doc';
+import { GrpcTestModule } from '@/modules/grpc-test/grpc-test.module';
 import { RabbitmqModule } from '@/modules/rabbitmq/rabbitmq.module';
 
 import { AppController } from '@/app.controller';
@@ -69,6 +70,7 @@ import { AppService } from '@/app.service';
 
         ConfigModule,
         ExampleModule,
+        GrpcTestModule,
     ],
     controllers: [AppController],
     providers: [AppService],

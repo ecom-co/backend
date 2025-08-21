@@ -45,34 +45,6 @@ export class ExampleService {
         });
     }
 
-    async esBulkInsert(docs: Array<{ id: string; name: string; price: number }>): Promise<{ ok: true }> {
-        if (docs.length === 0) return { ok: true };
-
-        await this.productRepo.bulkIndex(docs);
-        await this.productRepo.refresh();
-
-        return { ok: true };
-    }
-
-    async esDeleteById(id: string): Promise<{ ok: true }> {
-        await this.productRepo.deleteById(id);
-        await this.productRepo.refresh();
-
-        return { ok: true };
-    }
-
-    async esGetAll(): Promise<SearchResponse<ProductSearchDoc>> {
-        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q: '*' });
-
-        return res;
-    }
-
-    async esGetAllSources(): Promise<ProductSearchDoc[]> {
-        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ q: '*' });
-
-        return items;
-    }
-
     // --- Elasticsearch demo methods ---
     async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
         const [users, total] = await this.userRepository.findAndCount({
@@ -136,6 +108,34 @@ export class ExampleService {
 
     remove(id: number) {
         return `This action removes a #${id} example`;
+    }
+
+    async esBulkInsert(docs: Array<{ id: string; name: string; price: number }>): Promise<{ ok: true }> {
+        if (docs.length === 0) return { ok: true };
+
+        await this.productRepo.bulkIndex(docs);
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
+    async esDeleteById(id: string): Promise<{ ok: true }> {
+        await this.productRepo.deleteById(id);
+        await this.productRepo.refresh();
+
+        return { ok: true };
+    }
+
+    async esGetAll(): Promise<SearchResponse<ProductSearchDoc>> {
+        const res: SearchResponse<ProductSearchDoc> = await this.productRepo.search({ q: '*' });
+
+        return res;
+    }
+
+    async esGetAllSources(): Promise<ProductSearchDoc[]> {
+        const items: ProductSearchDoc[] = await this.productRepo.searchSources({ q: '*' });
+
+        return items;
     }
 
     async esInsertOne(doc: { id: string; name: string; price: number }): Promise<{ ok: true }> {
