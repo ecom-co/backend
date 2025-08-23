@@ -14,8 +14,6 @@ export class ConfigServiceApp {
         return this.configService.get('ELASTICSEARCH_PASSWORD');
     }
 
-    constructor(private readonly configService: NestConfigService<EnvironmentVariables>) {}
-
     // Elasticsearch Configuration
     get elasticsearchUrl(): string {
         return this.configService.get('ELASTICSEARCH_URL');
@@ -76,4 +74,6 @@ export class ConfigServiceApp {
     get swaggerVersion(): string {
         return this.configService.get('SWAGGER_VERSION');
     }
+
+    constructor(private readonly configService: NestConfigService<EnvironmentVariables>) {}
 }

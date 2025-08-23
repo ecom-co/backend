@@ -36,11 +36,6 @@ export class ExampleController {
         return this.exampleService.create(createExampleDto);
     }
 
-    @Post('es/products/bulk')
-    esBulk(@Body() body: Array<{ id: string; name: string; price: number }>) {
-        return this.exampleService.esBulkInsert(body);
-    }
-
     // --- Elasticsearch demo endpoints ---
     @ApiEndpoint({
         auth: { type: AUTH_TYPE.JWT, required: true },
@@ -74,6 +69,11 @@ export class ExampleController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.exampleService.remove(+id);
+    }
+
+    @Post('es/products/bulk')
+    esBulk(@Body() body: Array<{ id: string; name: string; price: number }>) {
+        return this.exampleService.esBulkInsert(body);
     }
 
     @Post('es/products')

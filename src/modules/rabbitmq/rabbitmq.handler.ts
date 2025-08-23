@@ -48,15 +48,4 @@ export class OrdersRabbitHandler {
     public handleSubscription(msg: SubscriptionMessage) {
         this.logger.log(`Received subscription message: ${JSON.stringify(msg)}`);
     }
-
-    @RabbitRPC({
-        exchange: 'exchange1',
-        queue: 'rpc-queue',
-        routingKey: 'rpc-route',
-    })
-    public handleSumRpcRequest(msg: { a: number; b: number }) {
-        this.logger.log(`Received Sum RPC request: ${JSON.stringify(msg)}`);
-
-        return { sum: msg.a + msg.b };
-    }
 }

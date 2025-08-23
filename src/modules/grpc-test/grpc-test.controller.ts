@@ -13,8 +13,8 @@ export class GrpcTestController {
     constructor(private readonly grpcTestService: GrpcTestService) {}
 
     @Post('users')
-    createUser(@Body() body: CreateUserDto): Observable<ApiResponseData<UserResponseDto>> {
-        return this.grpcTestService.createUser(body.name, body.email, body.password);
+    createUser(@Body() createUserDto: CreateUserDto): Observable<ApiResponseData<UserResponseDto>> {
+        return this.grpcTestService.createUser(createUserDto);
     }
 
     @Get('users/:id')

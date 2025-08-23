@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { ApiPaginatedResponseData, ApiResponseData } from '@ecom-co/utils';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -16,6 +16,7 @@ interface UserService {
 
 @Injectable()
 export class GrpcTestService {
+    private readonly logger = new Logger(GrpcTestService.name);
     private userService: UserService;
 
     constructor(
@@ -27,14 +28,11 @@ export class GrpcTestService {
         this.userService = this.userClient.getService<UserService>('UserService');
     }
 
-    createUser(name: string, email: string, password: string) {
-        const createUserData: CreateUserDto = {
-            name,
-            email,
-            password,
-        };
-
-        return this.userService.CreateUser(createUserData).pipe(
+    createUser(createUserDto: CreateUserDto) {
+        return this.userService.CreateUser(createUserDto).pipe(
+            tap((response) => {
+                this.logger.log(`[createUser] Response: ${JSON.stringify(response)}`);
+            }),
             map(
                 (response) =>
                     new ApiResponseData({
@@ -48,6 +46,9 @@ export class GrpcTestService {
 
     getUser(id: string) {
         return this.userService.GetUser({ id }).pipe(
+            tap((response) => {
+                this.logger.log(`[getUser] Response: ${JSON.stringify(response)}`);
+            }),
             map(
                 (response) =>
                     new ApiResponseData({
@@ -66,6 +67,9 @@ export class GrpcTestService {
                 page,
             })
             .pipe(
+                tap((response) => {
+                    this.logger.log(`[listUsers] Response: ${JSON.stringify(response)}`);
+                }),
                 map(
                     (response) =>
                         new ApiPaginatedResponseData({
