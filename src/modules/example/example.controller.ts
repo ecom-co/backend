@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, BadRequestException } from '@nestjs/common';
 
 import { ApiEndpoint, ApiValidationEndpoint, AUTH_TYPE, PAGINATION_TYPE } from '@ecom-co/utils';
 
@@ -26,7 +26,7 @@ export class ExampleController {
         tags: ['User'],
         validation: {
             errorExamples: [
-                { constraint: 'isNotEmpty', field: 'name', message: 'Namne should not be empty' },
+                { constraint: 'isNotEmpty', field: 'name', message: 'Name should not be empty' }, // Fixed typo: "Namne" -> "Name"
                 { constraint: 'isEmail', field: 'email', message: 'email must be an email' },
             ],
         },
@@ -63,12 +63,12 @@ export class ExampleController {
 
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateExampleDto: UpdateExampleDto) {
-        return this.exampleService.update(+id, updateExampleDto);
+        return this.exampleService.update(id, updateExampleDto); // Fixed: Use string ID consistently
     }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.exampleService.remove(+id);
+        return this.exampleService.remove(id); // Fixed: Use string ID consistently
     }
 
     @Post('es/products/bulk')
@@ -111,7 +111,8 @@ export class ExampleController {
 
     @Get('es/products/search')
     esSearch(@Query('q') q: string) {
-        return this.exampleService.esSearch(q ?? '');
+        // Provide default value if query is empty
+        return this.exampleService.esSearch(q || '*');
     }
 
     @Get('es/products/search/advanced')
@@ -121,10 +122,22 @@ export class ExampleController {
         @Query('maxPrice') maxPrice?: string,
         @Query('tagId') tagId?: string,
     ) {
+        // Parse and validate numeric parameters
+        const parsedMinPrice = minPrice ? Number(minPrice) : undefined;
+        const parsedMaxPrice = maxPrice ? Number(maxPrice) : undefined;
+
+        // Validate numeric values
+        if (minPrice && (isNaN(parsedMinPrice!) || parsedMinPrice! < 0)) {
+            throw new BadRequestException('Invalid minPrice parameter');
+        }
+        if (maxPrice && (isNaN(parsedMaxPrice!) || parsedMaxPrice! < 0)) {
+            throw new BadRequestException('Invalid maxPrice parameter');
+        }
+
         return this.exampleService.esSearchAdvanced({
             name,
-            maxPrice: maxPrice ? Number(maxPrice) : undefined,
-            minPrice: minPrice ? Number(minPrice) : undefined,
+            maxPrice: parsedMaxPrice,
+            minPrice: parsedMinPrice,
             tagId,
         });
     }
