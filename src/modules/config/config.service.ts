@@ -6,6 +6,8 @@ import { EnvironmentVariables } from '@/modules/config/config.validation';
 
 @Injectable()
 export class ConfigServiceApp {
+    constructor(private readonly configService: NestConfigService<EnvironmentVariables>) {}
+
     get databaseUrl(): string | undefined {
         return this.configService.get('DATABASE_URL');
     }
@@ -74,6 +76,4 @@ export class ConfigServiceApp {
     get swaggerVersion(): string {
         return this.configService.get('SWAGGER_VERSION');
     }
-
-    constructor(private readonly configService: NestConfigService<EnvironmentVariables>) {}
 }

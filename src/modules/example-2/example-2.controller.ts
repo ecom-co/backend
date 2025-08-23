@@ -21,16 +21,16 @@ export class Example2Controller {
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.example2Service.findOne(+id);
+        return this.example2Service.findOne(id); // Use string ID consistently
     }
 
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateExample2Dto: UpdateExample2Dto) {
-        return this.example2Service.update(+id, updateExample2Dto);
+        return this.example2Service.update(id, updateExample2Dto); // Use string ID consistently
     }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.example2Service.remove(+id);
+        return this.example2Service.remove(id); // Use string ID consistently
     }
 }

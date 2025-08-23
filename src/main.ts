@@ -52,7 +52,7 @@ const bootstrap = async (): Promise<void> => {
     app.useGlobalFilters(
         new HttpExceptionFilter(app.get(Reflector), {
             enableRateLimitTracking: true,
-            isDevelopment: true,
+            isDevelopment: configService.isDevelopment, // Fixed: Use actual config instead of hardcoded value
         }),
     );
     app.useGlobalFilters(
