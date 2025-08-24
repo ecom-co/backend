@@ -57,12 +57,12 @@
         }
     },
     "dependencies": {
-        "@ecom-co/elasticsearch": "^0.1.18",
+        "@ecom-co/elasticsearch": "^0.1.19",
         "@ecom-co/grpc": "^1.1.11",
-        "@ecom-co/orm": "^0.1.22",
-        "@ecom-co/rabbitmq": "^2.0.12",
-        "@ecom-co/redis": "^0.1.13",
-        "@ecom-co/utils": "^1.0.20",
+        "@ecom-co/orm": "^0.1.23",
+        "@ecom-co/rabbitmq": "^2.0.13",
+        "@ecom-co/redis": "^0.1.15",
+        "@ecom-co/utils": "^1.0.21",
         "@elastic/elasticsearch": "^8.19.0",
         "@grpc/grpc-js": "^1.13.4",
         "@grpc/proto-loader": "^0.7.5",

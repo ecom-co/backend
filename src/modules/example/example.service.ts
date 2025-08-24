@@ -31,7 +31,7 @@ export class ExampleService {
     async create(dto: CreateExampleDto) {
         const result = await this.userRepository.findOneOrCreate(
             {
-                name: dto.name ?? 'Anonymous',
+                firstName: dto.name ?? 'Anonymous',
             },
             {
                 isActive: 1 as unknown as boolean,
@@ -50,8 +50,8 @@ export class ExampleService {
         const [users, total] = await this.userRepository.findAndCount({
             select: {
                 id: true,
-                name: true,
                 isActive: true,
+                firstName: true,
             },
         });
 
