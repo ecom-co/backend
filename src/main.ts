@@ -1,28 +1,24 @@
-/* eslint-disable no-console */
-import { join } from 'path';
-
 import type { NestApplication } from '@nestjs/core';
 import { NestFactory, Reflector } from '@nestjs/core';
 
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
 
 import { HttpGrpcExceptionFilter } from '@ecom-co/grpc';
 import { getValidationPipeConfig, HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
-import { Transport } from '@nestjs/microservices';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { ConfigServiceApp } from '@/modules/config/config.service';
 
 import { AppModule } from '@/app.module';
 
-import type { MicroserviceOptions } from '@nestjs/microservices';
-
 /**
  * Bootstrap the NestJS application
  */
 const bootstrap = async (): Promise<void> => {
+    const logger = new Logger('Root');
     const app: NestApplication = await NestFactory.create(AppModule, {
         logger: ['log', 'error', 'warn', 'debug', 'verbose'],
         snapshot: true,
@@ -41,6 +37,7 @@ const bootstrap = async (): Promise<void> => {
         origin: true,
     });
 
+    app.use(cookieParser());
     app.use(helmet());
     app.use(compression());
 
@@ -75,18 +72,6 @@ const bootstrap = async (): Promise<void> => {
                     in: 'header',
                     keyName: 'X-Api-Key',
                 },
-                {
-                    name: 'api-key-2',
-                    description: 'API Key 2',
-                    in: 'header',
-                    keyName: 'X-Api-Key-2',
-                },
-                {
-                    name: 'api-key-3',
-                    description: 'API Key 3',
-                    in: 'header',
-                    keyName: 'X-Api-Key-3',
-                },
             ],
         },
         description: configService.swaggerDescription,
@@ -116,32 +101,11 @@ const bootstrap = async (): Promise<void> => {
     // Start HTTP server
     await app.listen(configService.port);
 
-    // Setup and start gRPC microservice
-    try {
-        const protoPath = join(process.cwd(), configService.grpcProtoPath);
-
-        const microserviceOptions: MicroserviceOptions = {
-            options: {
-                package: configService.grpcPackage,
-                protoPath,
-                url: `0.0.0.0:${configService.grpcPort}`,
-            },
-            transport: Transport.GRPC,
-        };
-
-        const grpcApp = await NestFactory.createMicroservice(AppModule, microserviceOptions);
-
-        await grpcApp.listen();
-        console.log(`gRPC server running on ${configService.grpcPort}`);
-    } catch (err) {
-        console.error('Failed to start gRPC microservice', err as Error);
-    }
-
-    console.log(`Server is running on port ${configService.port}`);
-    console.log(`Environment: ${configService.nodeEnv}`);
+    logger.log(`Server is running on port ${configService.port}`);
+    logger.log(`Environment: ${configService.nodeEnv}`);
 
     if (configService.isDevelopment) {
-        console.log(`📚 Swagger documentation: http://localhost:${configService.port}/docs`);
+        logger.log(`📚 Swagger documentation: http://localhost:${configService.port}/docs`);
     }
 };
 
