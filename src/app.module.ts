@@ -6,6 +6,7 @@ import { ElasticsearchModule } from '@ecom-co/elasticsearch';
 import { CORE_ENTITIES, OrmModule } from '@ecom-co/orm';
 import { RedisModule } from '@ecom-co/redis';
 
+import { AuthModule } from '@/modules/auth/auth.module';
 import { ConfigModule } from '@/modules/config/config.module';
 import { ConfigServiceApp } from '@/modules/config/config.service';
 import { ExampleModule } from '@/modules/example/example.module';
@@ -71,6 +72,7 @@ import { AppService } from '@/app.service';
         ConfigModule,
         ExampleModule,
         GrpcTestModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
