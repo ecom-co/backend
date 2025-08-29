@@ -12,7 +12,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 
-import { ApiEndpoint, ApiValidationEndpoint, AUTH_TYPE, PAGINATION_TYPE } from '@ecom-co/utils';
+import { ApiEndpoint, ApiValidationEndpoint, AUTH_TYPE, PAGINATION_TYPE, route } from '@ecom-co/utils';
 
 import { CurrentUser } from '@/core/decorators';
 import { RequireAccess } from '@/core/decorators/permission.decorator';
@@ -29,6 +29,7 @@ export class ExampleController {
     constructor(private readonly exampleService: ExampleService) {}
 
     @ApiValidationEndpoint({
+        apiUrl: route('GET', 'api/example'),
         auth: [{ type: AUTH_TYPE.JWT, provider: 'access-token', required: false }],
         body: { type: CreateExampleDto },
         description: 'Creates a new example record.',
@@ -55,6 +56,7 @@ export class ExampleController {
 
     // --- Elasticsearch demo endpoints ---
     @ApiEndpoint({
+        apiUrl: '@GET api/example',
         auth: { type: AUTH_TYPE.JWT, provider: 'access-token', required: true },
         description: 'Creates a new example record.',
         errors: [HttpStatus.BAD_REQUEST, HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN],
