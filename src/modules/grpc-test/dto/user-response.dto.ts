@@ -3,26 +3,29 @@ import { ApiProperty } from '@nestjs/swagger';
 import { assign } from 'lodash';
 
 import { User } from '@ecom-co/orm';
-import { plainToInstance } from '@ecom-co/utils';
+import { Exclude, Expose, plainToInstance } from '@ecom-co/utils';
 
+@Exclude()
 export class UserResponseDto {
     @ApiProperty({
         description: 'User ID',
         example: '123e4567-e89b-12d3-a456-426614174000',
     })
-    id: string;
+    @Expose()
+    id?: string;
 
     @ApiProperty({
         description: 'User email address',
         example: 'john.doe@example.com',
     })
-    email: string;
+    email?: string;
 
     @ApiProperty({
         description: 'User unique username',
         example: 'johndoe123',
         required: false,
     })
+    @Expose()
     username?: string;
 
     @ApiProperty({
@@ -30,37 +33,43 @@ export class UserResponseDto {
         description: 'Indicates whether the user account is active',
         example: true,
     })
-    isActive: boolean;
+    @Expose()
+    isActive?: boolean;
 
     @ApiProperty({
         description: 'User first name',
         example: 'John',
     })
+    @Expose()
     firstName: string;
 
     @ApiProperty({
         description: 'User full name (firstName + lastName)',
         example: 'John Doe',
     })
-    fullName: string;
+    @Expose()
+    fullName?: string;
 
     @ApiProperty({
         description: 'User last name',
         example: 'Doe',
     })
-    lastName: string;
+    @Expose()
+    lastName?: string;
 
     @ApiProperty({
         description: 'User creation date',
         example: '2024-01-01T00:00:00.000Z',
     })
-    createdAt: string;
+    @Expose()
+    createdAt?: string;
 
     @ApiProperty({
         description: 'User last update date',
         example: '2024-01-01T00:00:00.000Z',
     })
-    updatedAt: string;
+    @Expose()
+    updatedAt?: string;
 
     constructor(partial: Partial<User>) {
         assign(this, plainToInstance(UserResponseDto, partial, { excludeExtraneousValues: true }));

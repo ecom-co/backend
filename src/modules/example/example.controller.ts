@@ -1,7 +1,23 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Logger,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+} from '@nestjs/common';
 
 import { ApiEndpoint, ApiValidationEndpoint, AUTH_TYPE, PAGINATION_TYPE } from '@ecom-co/utils';
 
+import { CurrentUser } from '@/core/decorators';
+import { RequireAccess } from '@/core/decorators/permission.decorator';
+import { UserAuth } from '@/modules/auth/auth.grpc.client';
+import { AccessGuard } from '@/modules/auth/guards/access.guard';
 import { CreateExampleDto } from '@/modules/example/dto/create-example.dto';
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
 import { UpdateExampleDto } from '@/modules/example/dto/update-example.dto';
@@ -9,6 +25,7 @@ import { ExampleService } from '@/modules/example/example.service';
 
 @Controller('example')
 export class ExampleController {
+    private readonly logger = new Logger(ExampleController.name);
     constructor(private readonly exampleService: ExampleService) {}
 
     @ApiValidationEndpoint({
@@ -38,9 +55,9 @@ export class ExampleController {
 
     // --- Elasticsearch demo endpoints ---
     @ApiEndpoint({
-        auth: { type: AUTH_TYPE.JWT, required: true },
+        auth: { type: AUTH_TYPE.JWT, provider: 'access-token', required: true },
         description: 'Creates a new example record.',
-        errors: [HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
+        errors: [HttpStatus.BAD_REQUEST, HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN],
         paginationType: PAGINATION_TYPE.OFFSET,
         queries: [{ name: 'limit', type: 'number', description: 'Limit' }],
         responses: {
@@ -52,7 +69,11 @@ export class ExampleController {
         summary: 'Create a new example',
     })
     @Get()
-    findAll(@Query('limit') limit: number) {
+    @RequireAccess(['example.read'])
+    @UseGuards(AccessGuard)
+    findAll(@Query('limit') limit: number, @CurrentUser() user: UserAuth) {
+        this.logger.log('findAll', { user });
+
         return this.exampleService.findAll({ limit: limit ?? 10 });
     }
 

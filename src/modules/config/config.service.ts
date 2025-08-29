@@ -6,6 +6,10 @@ import { EnvironmentVariables } from '@/modules/config/config.validation';
 
 @Injectable()
 export class ConfigServiceApp {
+    get authGrpcUrl(): string | undefined {
+        return this.configService.get('AUTH_GRPC_URL');
+    }
+
     get databaseUrl(): string | undefined {
         return this.configService.get('DATABASE_URL');
     }

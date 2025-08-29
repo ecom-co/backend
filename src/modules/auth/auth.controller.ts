@@ -95,7 +95,7 @@ export class AuthController {
     ): Observable<ApiResponseData<LoginResponseDto>> {
         const metadata = new Metadata();
 
-        metadata.add('authorization', request.cookies['refreshToken'] as string);
+        metadata.add('authorization', request.cookies['refresh-token'] as string);
 
         return this.authService.refreshToken(metadata).pipe(
             tap((authResponse) => {
