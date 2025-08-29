@@ -3,7 +3,8 @@ import { NestFactory, Reflector } from '@nestjs/core';
 
 import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
 
-import { HttpGrpcExceptionFilter } from '@ecom-co/grpc';
+// import { HttpGrpcExceptionFilter } from '@ecom-co/grpc';
+import { GrpcClientFilter } from '@ecom-co/grpc';
 import { getValidationPipeConfig, HttpExceptionFilter, setUpSwagger } from '@ecom-co/utils';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
@@ -49,12 +50,12 @@ const bootstrap = async (): Promise<void> => {
     app.useGlobalFilters(
         new HttpExceptionFilter(app.get(Reflector), {
             enableRateLimitTracking: true,
-            isDevelopment: true,
+            isDevelopment: configService.isDevelopment,
         }),
-    );
-    app.useGlobalFilters(
-        new HttpGrpcExceptionFilter({
-            enableStackTrace: configService.isDevelopment,
+        new GrpcClientFilter({
+            enableDetailedLogging: true,
+            enableStackTrace: true,
+            includeMetadata: true,
             isDevelopment: configService.isDevelopment,
             logLevel: configService.isDevelopment ? 'debug' : 'error',
         }),

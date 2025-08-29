@@ -6,6 +6,7 @@ import { EsRepository, InjectEsRepository } from '@ecom-co/elasticsearch';
 import { BaseRepository, InjectRepository, User } from '@ecom-co/orm';
 import { InjectRedisFacade, RedisFacade } from '@ecom-co/redis';
 import { ApiPaginatedResponseData, ApiResponseData, Paging } from '@ecom-co/utils';
+import { QueryDslQueryContainer, SearchResponse } from 'node_modules/@elastic/elasticsearch/lib/api/types';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
@@ -15,8 +16,6 @@ import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
 
 import { ProductSearchDoc } from './product-search.doc';
-
-import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 
 @Injectable()
 export class ExampleService {

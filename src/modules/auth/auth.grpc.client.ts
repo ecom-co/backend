@@ -1,5 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 
+import { createWrappedGrpc } from '@ecom-co/grpc';
 import { Metadata } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
 
@@ -67,6 +68,10 @@ export class AuthGrpcClient implements OnModuleInit {
     constructor(@Inject('AUTH_SERVICE') private readonly grpc: ClientGrpc) {}
 
     onModuleInit() {
-        this.client = this.grpc.getService<AuthServiceClient>('AuthService');
+        const wrappedClient = createWrappedGrpc(this.grpc, {
+            retry: 3,
+        });
+
+        this.client = wrappedClient.getService<AuthServiceClient>('AuthService');
     }
 }
