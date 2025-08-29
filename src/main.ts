@@ -99,10 +99,11 @@ const bootstrap = async (): Promise<void> => {
     });
 
     // Start HTTP server
-    await app.listen(configService.port);
+    await app.listen(configService.port, '0.0.0.0');
 
     logger.log(`Server is running on port ${configService.port}`);
     logger.log(`Environment: ${configService.nodeEnv}`);
+    logger.log(`Server accessible at: http://0.0.0.0:${configService.port}`);
 
     if (configService.isDevelopment) {
         logger.log(`📚 Swagger documentation: http://localhost:${configService.port}/docs`);

@@ -4,7 +4,9 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken as getEsRepositoryToken } from '@ecom-co/elasticsearch';
 import { getRepositoryToken as getOrmRepositoryToken, User } from '@ecom-co/orm';
 import { getRedisFacadeToken } from '@ecom-co/redis';
+import { of } from 'rxjs';
 
+import { AuthGrpcClient } from '@/modules/auth/auth.grpc.client';
 import { Example2Service } from '@/modules/example-2/example-2.service';
 
 import { ExampleController } from './example.controller';
@@ -65,6 +67,15 @@ describe('ExampleController', () => {
                     provide: getEsRepositoryToken(ProductSearchDoc, 'analytics'),
                     useValue: mockEsRepoAnalytics,
                 },
+                {
+                    provide: 'AUTH_SERVICE',
+                    useValue: {
+                        getService: jest.fn().mockReturnValue({
+                            CheckAccess: jest.fn().mockReturnValue(of({ allowed: true })),
+                        }),
+                    },
+                },
+                AuthGrpcClient,
             ],
         }).compile();
 

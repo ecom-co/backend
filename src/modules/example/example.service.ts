@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { map } from 'lodash';
 
@@ -9,6 +9,7 @@ import { ApiPaginatedResponseData, ApiResponseData, Paging } from '@ecom-co/util
 import { v4 as uuidv4 } from 'uuid';
 
 import { ExampleResponseDto } from '@/modules/example/dto/response-example.dto';
+import { UserResponseDto } from '@/modules/grpc-test/dto/user-response.dto';
 
 import { CreateExampleDto } from './dto/create-example.dto';
 import { UpdateExampleDto } from './dto/update-example.dto';
@@ -19,6 +20,7 @@ import type { QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsea
 
 @Injectable()
 export class ExampleService {
+    private readonly logger = new Logger(ExampleService.name);
     constructor(
         @InjectRepository(User)
         private readonly userRepository: BaseRepository<User>,
@@ -46,12 +48,17 @@ export class ExampleService {
     }
 
     // --- Elasticsearch demo methods ---
-    async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<ExampleResponseDto>> {
+    async findAll({ limit }: { limit: number }): Promise<ApiPaginatedResponseData<UserResponseDto>> {
         const [users, total] = await this.userRepository.findAndCount({
             select: {
                 id: true,
+                email: true,
+                username: true,
                 isActive: true,
                 firstName: true,
+                lastName: true,
+                createdAt: true,
+                updatedAt: true,
             },
         });
 
@@ -62,8 +69,10 @@ export class ExampleService {
             total,
         });
 
-        return new ApiPaginatedResponseData<ExampleResponseDto>({
-            data: map(users, (user) => new ExampleResponseDto(user)),
+        this.logger.log('findAll', { users });
+
+        return new ApiPaginatedResponseData<UserResponseDto>({
+            data: map(users, (user) => new UserResponseDto(user)),
             message: 'Users retrieved successfully',
             paging,
         });

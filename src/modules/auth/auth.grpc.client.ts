@@ -14,10 +14,24 @@ export interface AuthResponseFromGrpc {
 }
 
 export interface AuthServiceClient {
+    CheckAccess: (data: CheckAccessRequest, metadata?: Metadata) => Observable<CheckAccessResponse>;
     GetProfile: (_: unknown, metadata?: Metadata) => Observable<{ message?: string; user: UserAuth }>;
     Login: (data: LoginDto, metadata?: Metadata) => Observable<AuthResponseFromGrpc>;
     RefreshToken: (_: unknown, metadata?: Metadata) => Observable<AuthResponseFromGrpc>;
     Register: (data: RegisterDto, metadata?: Metadata) => Observable<AuthResponseFromGrpc>;
+}
+
+export interface CheckAccessRequest {
+    groups?: { permissions: string[] }[];
+    logic?: 'AND' | 'OR';
+    permissions?: string[];
+    resource?: { id?: null | string; type?: null | string };
+}
+
+export interface CheckAccessResponse {
+    allowed: boolean;
+    reason?: string;
+    user?: UserAuth;
 }
 
 export interface TokenResponse {
