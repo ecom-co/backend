@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Post, Req, Res } from '@nestjs/common';
 
-import { ApiEndpoint, ApiResponseData, ApiTags, AUTH_TYPE, route } from '@ecom-co/utils';
+import { ApiEndpoint, ApiResponseData, ApiTags, AUTH_TYPE } from '@ecom-co/utils';
 import { Metadata } from '@grpc/grpc-js';
 import { Request, Response } from 'express';
 import { map, Observable, tap } from 'rxjs';
@@ -18,7 +18,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @ApiEndpoint({
-        apiUrl: route('GET', 'api/v1/auth/profile'),
+        apiUrl: '@GET api/v1/auth/profile',
         auth: [{ type: AUTH_TYPE.JWT, provider: 'access-token', required: false }],
         description: 'Get the profile of the current user.',
         errors: [HttpStatus.UNAUTHORIZED, HttpStatus.INTERNAL_SERVER_ERROR],
@@ -43,6 +43,7 @@ export class AuthController {
 
     @ApiEndpoint({
         apiUrl: '@POST api/v1/auth/login',
+        auth: [{ type: AUTH_TYPE.JWT, provider: 'access-token', required: false }],
         description: 'Login the user.',
         errors: [HttpStatus.UNAUTHORIZED, HttpStatus.INTERNAL_SERVER_ERROR],
         responses: {

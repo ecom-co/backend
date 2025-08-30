@@ -39,7 +39,11 @@ const bootstrap = async (): Promise<void> => {
     });
 
     app.use(cookieParser());
-    app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: !configService.isDevelopment,
+        }),
+    );
     app.use(compression());
 
     app.useGlobalPipes(getValidationPipeConfig());
