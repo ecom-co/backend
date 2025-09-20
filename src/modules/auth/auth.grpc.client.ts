@@ -69,6 +69,9 @@ export class AuthGrpcClient implements OnModuleInit {
 
     onModuleInit() {
         const wrappedClient = createWrappedGrpc(this.grpc, {
+            opossum: {
+                enabled: true,
+            },
             retry: 3,
         });
 
